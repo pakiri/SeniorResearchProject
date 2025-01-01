@@ -18,7 +18,7 @@ migrate = Migrate(app, db)
 # displayed on the home page
 @app.route('/')
 def index():
-    return "Hello, world!"
+    return render_template('index.html', message="hello world")
 
 with app.app_context():
     db.create_all()
