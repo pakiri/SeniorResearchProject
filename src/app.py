@@ -7,7 +7,7 @@ app = Flask(__name__) # creates a new Flask app
 app.debug = True # turns on debugger mode
 
 # link the database to the Flask app's config
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SRdata.db'
 
 # creates a new database for the app
 db = SQLAlchemy(app)
