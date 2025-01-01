@@ -1,3 +1,1 @@
 # SeniorResearchProject
-
-< Test Description Here >
