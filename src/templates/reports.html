@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <h3>Pricing Information</h3>
+    <body>
+        <a href='/'>Home</a>
+        <br>
+        <a href='/admin'>Admin</a>
+        <form action="/download">
+            <button type="submit">Download</button>
+        </form>
+        <table>
+            <thead>
+                <th>ID</th>
+                <th>Product ID</th>
+                <th>Item Name</th>
+                <th>Store ID</th>
+                <th>Zip Code</th>
+                <th>Price</th>
+                <th>Unit</th>
+                <th>Date of Creation</th>
+            </thead>
+            {% for item in pricingInfo %}
+                <tbody>
+                    <td>{{item.id}}</td>
+                    <td>{{item.product_id}}</td>
+                    <td>{{item.item_name}}</td>
+                    <td>{{item.store_id}}</td>
+                    <td>{{item.zipcode}}</td>
+                    <td>{{item.price}}</td>
+                    <td>{{item.unit}}</td>
+                    <td>{{item.created_date}}</td>
+                </tbody>
+            {% endfor %}
+        </table>
+    </body>
+</html>

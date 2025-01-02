@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, Response
 from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, migrate
@@ -31,6 +31,19 @@ class Stores(db.Model):
 
     def __repr__(self):
         return f"Store Name : {self.store_name}, URL: {self.url}"
+
+class PricingInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    product_id = db.Column(db.Integer, unique=False)
+    item_name = db.Column(db.String(50), unique=False)
+    zipcode = db.Column(db.String(5), unique=False)
+    unit = db.Column(db.String(20), unique=False)
+    store_id = db.Column(db.Integer, unique=False)
+    price = db.Column(db.Float, unique=False)
+    created_date = db.Column(db.String(20), unique=False)
+
+    def __repr__(self):
+        return f"Product ID: {self.product_id}, Item Name: {self.item_name}, Store ID: {self.store_id}, Zip Code: {self.zipcode}, Price: {self.price}, Unit: {self.unit}, Date of Creation: {self.created_date}"
 
 # displayed on the home page
 @app.route('/')
@@ -66,8 +79,24 @@ def refresh():
     return render_template('refreshList.html', stores=stores)
 
 @app.route('/admin/reports')
-def route():
-    return render_template('admin.html')
+def displayReports():
+    pricingInfo = PricingInfo.query.all()
+    return render_template('reports.html', pricingInfo=pricingInfo)
+
+@app.route('/download')
+def download():
+    pricingInfo = PricingInfo.query.all()
+
+    # store princingInfo data in a CSV string
+    csv_data = "ID,Product ID,Item Name,Store ID,Zip Code,Price,Unit,Date of Creation\n"
+    for item in pricingInfo:
+        csv_data += f"{item.id},{item.product_id},{item.item_name},{item.store_id},{item.zipcode},{item.price},{item.unit},{item.created_date}\n"
+    
+    # Create a direct download response with the CSV data and appropriate headers
+    response = Response(csv_data, content_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=priceInfo.csv"
+
+    return response
 
 with app.app_context():
     db.create_all()

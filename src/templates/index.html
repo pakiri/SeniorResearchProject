@@ -7,16 +7,9 @@
             <button type="submit">Search</button>
         </form>
         {% if zipcode %}
-            <label>{{zipcode.city}}, {{zipcode.state}}</label>
+            <label>{{zipcode.zipcode}} — {{zipcode.city}}, {{zipcode.state}}</label>
         {% endif %}
-        <!-- <table>
-            {% for zipCode in zipcodes %}
-            <tbody>
-                <td>{{zipCode.zipcode}}</td>
-                <td>{{zipCode.city}}</td>
-                <td>{{zipCode.state}}</td>
-            </tbody>
-            {% endfor %}
-        </table> -->
+        <br>
+        <a href='/admin'>Admin Link</a>
     </body>
 </html>
