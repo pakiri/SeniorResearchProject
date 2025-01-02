@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <h3>Select a Store</h3>
+    <body>
+        <form>
+            <select name="stores">
+                {% for store in stores %}
+                <option value={{store.store_id}}>{{store.store_name}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Refresh</button>
+        </form>
+    </body>
+</html>

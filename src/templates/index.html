@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <html>
-    <h3>Enter a Zip Code</h3>
-    <input id="zipcode" type="text" placeholder="Zip Code" autocomplete="off" value="">
+    <body>
+        <h3>Enter a Zip Code</h3>
+        <form action="/zipcode" method="POST">
+            <input name="user_zipcode" type="text" placeholder="Zip Code" autocomplete="off" value="">
+            <button type="submit">Search</button>
+        </form>
+        {% if zipcode %}
+            <label>{{zipcode.city}}, {{zipcode.state}}</label>
+        {% endif %}
+        <!-- <table>
+            {% for zipCode in zipcodes %}
+            <tbody>
+                <td>{{zipCode.zipcode}}</td>
+                <td>{{zipCode.city}}</td>
+                <td>{{zipCode.state}}</td>
+            </tbody>
+            {% endfor %}
+        </table> -->
+    </body>
 </html>
