@@ -5,8 +5,8 @@
         <a href='/'>Home</a>
         <br>
         <a href='/admin'>Admin</a>
-        <form>
-            <select name="stores">
+        <form action="/admin/refreshInfo" method="POST">
+            <select name="user_store">
                 {% for store in stores %}
                 <option value={{store.store_id}}>{{store.store_name}}</option>
                 {% endfor %}

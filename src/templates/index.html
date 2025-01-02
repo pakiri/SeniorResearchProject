@@ -8,6 +8,32 @@
         </form>
         {% if zipcode %}
             <label>{{zipcode.zipcode}} — {{zipcode.city}}, {{zipcode.state}}</label>
+            <table>
+                <thead>
+                    <th>ID</th>
+                    <th>Product ID</th>
+                    <th>Item Name</th>
+                    <th>Store ID</th>
+                    <th>Zip Code</th>
+                    <th>Price</th>
+                    <th>Unit</th>
+                    <th>Price per Unit</th>
+                </thead>
+                {% for item in pricingInfo %}
+                    {% if item.zipcode == zipcode.zipcode %}
+                        <tbody>
+                            <td>{{item.id}}</td>
+                            <td>{{item.product_id}}</td>
+                            <td>{{item.item_name}}</td>
+                            <td>{{item.store_id}}</td>
+                            <td>{{item.zipcode}}</td>
+                            <td>{{item.price}}</td>
+                            <td>{{item.unit}}</td>
+                            <td>{{item.price/item.unit[:-3] | float}}</td>
+                        </tbody>
+                    {% endif %}
+                {% endfor %}
+            </table>
         {% endif %}
         <br>
         <a href='/admin'>Admin Link</a>

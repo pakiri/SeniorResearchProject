@@ -1,10 +1,9 @@
-from flask import Flask, request, redirect, Response
+from flask import Flask, request, redirect, Response, flash
 from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, migrate
 
 app = Flask(__name__) # creates a new Flask app
-app.debug = True # turns on debugger mode
 
 # link the database to the Flask app's config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SRdata.db'
@@ -63,7 +62,8 @@ def searchZipCode():
 
     if user_zipcode and len(user_zipcode) == 5 and user_zipcode.isnumeric():
         zipcode = ZipCode.query.get(user_zipcode)
-        return render_template('index.html', zipcode=zipcode)
+        pricingInfo = PricingInfo.query.all()
+        return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo)
     return redirect('/')
 
 # main admin page
@@ -78,12 +78,26 @@ def refresh():
     stores = Stores.query.all()
     return render_template('refreshList.html', stores=stores)
 
+@app.route('/admin/refreshInfo', methods=['POST'])
+def refreshInfo():
+    # 1. image extraction from store url
+    store_id = request.form.get("user_store")
+    store = Stores.query.get(store_id)
+    import imagescraperv1
+    images_path = imagescraperv1.scrape(store_id, store.url)
+
+    # 2. data extraction from images
+    # ...
+
+    # 3. saving data in database
+    # ... 
+
 @app.route('/admin/reports')
 def displayReports():
     pricingInfo = PricingInfo.query.all()
     return render_template('reports.html', pricingInfo=pricingInfo)
 
-@app.route('/download')
+@app.route('/admin/download')
 def download():
     pricingInfo = PricingInfo.query.all()
 
@@ -102,4 +116,5 @@ with app.app_context():
     db.create_all()
 
 if __name__ == "__main__":
+    app.debug = True # turns on debugger mode
     app.run()
