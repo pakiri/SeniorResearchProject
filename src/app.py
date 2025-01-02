@@ -85,6 +85,7 @@ def refreshInfo():
     store = Stores.query.get(store_id)
     import imagescraperv1
     images_path = imagescraperv1.scrape(store_id, store.url)
+    return redirect('/admin/refresh') # placeholder for now
 
     # 2. data extraction from images
     # ...
