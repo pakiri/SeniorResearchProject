@@ -1,0 +1,7 @@
+requests
+selenium
+pillow
+wand
+flask
+flask_sqlalchemy
+flask_migrate
