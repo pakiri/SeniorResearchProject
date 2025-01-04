@@ -71,15 +71,22 @@ def download_image(image_url, output_dir, index):
             os.remove(output_path)
         else:
             print(f"Downloaded: {output_path}")
+            time.sleep(random.uniform(2, 5))  # random delay between downloads
 
     except requests.RequestException as e:
         print(f"Error downloading image {image_url}: {e}")
 
-# takes in store information and saves weekly ads in a directory
+# takes in store information and saves weekly ads in a directory corresponding to store ID
 def scrape(store_id, url, zipcode=""):
-    # set up Selenium WebDriver
+    # # set up Selenium WebDriver
+    # service = Service(CHROMEDRIVER_PATH)
+    # driver = webdriver.Chrome(service=service)
+
+    # set up Selenium WebDriver without opening a new browser
     service = Service(CHROMEDRIVER_PATH)
-    driver = webdriver.Chrome(service=service)
+    option = webdriver.ChromeOptions()
+    option.add_argument("headless")
+    driver = webdriver.Chrome(service=service, options=option)
 
     try:
         # navigate to the website
@@ -113,7 +120,7 @@ def scrape(store_id, url, zipcode=""):
             if src and src not in url_list:
                 url_list.append(src)
                 download_image(src, output_folder, idx)
-                time.sleep(random.uniform(2, 5))  # random delay between downloads
+                # time.sleep(random.uniform(2, 5))  # random delay between downloads
 
         # resetting list of image urls for next pull
         del url_list
