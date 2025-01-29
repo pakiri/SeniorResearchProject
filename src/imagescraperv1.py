@@ -77,7 +77,7 @@ def download_image(image_url, output_dir, index):
         print(f"Error downloading image {image_url}: {e}")
 
 # takes in store information and saves weekly ads in a directory corresponding to store ID
-def scrape(store_id, url, zipcode=""):
+def scrape(store_id, url, zipcode="22312"):
     # # set up Selenium WebDriver
     # service = Service(CHROMEDRIVER_PATH)
     # driver = webdriver.Chrome(service=service)
@@ -106,7 +106,33 @@ def scrape(store_id, url, zipcode=""):
             # create the output folder
             os.makedirs(output_folder)
 
-        time.sleep(random.uniform(4, 7))  # random delay
+        if store_id == 1: # ALDI
+            time.sleep(random.uniform(2, 5))
+        
+            button1 = driver.find_element(By.ID, "onetrust-accept-btn-handler")
+            button1.click()
+            
+            time.sleep(0.5)
+
+            driver.switch_to.frame(0)
+
+            # time.sleep(1)
+
+            for num in zipcode:
+                time.sleep(random.uniform(0.5, 1))
+                driver.find_element(By.XPATH, "//input[@id='locationInput']").send_keys(num)    
+
+            button2 = driver.find_element(By.CSS_SELECTOR, ".svg-inline--fa")
+            button2.click()
+
+            time.sleep(random.uniform(1, 3))
+
+            button3 = driver.find_element(By.XPATH, "//div[@id='StoreListContainer']/div/div[3]/button")
+            button3.click()
+
+            time.sleep(random.uniform(2, 6))
+        else:
+            time.sleep(random.uniform(4, 7))  # random delay
 
         # locate image elements
         image_elements = driver.find_elements(By.TAG_NAME, "img")
@@ -132,6 +158,6 @@ def scrape(store_id, url, zipcode=""):
     return output_folder
 
 if __name__ == "__main__":
-    # scrape(3, "https://freshworld.us/weekly_special.phtml")
-    scrape(3, "https://freshworld.us/weekly_special.phtml#&gid=1&pid=1")
+    scrape(1, "https://www.aldi.us/weekly-specials/our-weekly-ads/")
     # scrape(2, "https://www.shoppersfood.com/flyers/3791d4b7-567c-43db-bed5-9a75a7a0cd80?store=2358")
+    # scrape(3, "https://freshworld.us/weekly_special.phtml#&gid=1&pid=1")
