@@ -161,5 +161,3 @@ if __name__ == "__main__":
     scrape(1, "https://www.aldi.us/weekly-specials/our-weekly-ads/")
     # scrape(2, "https://www.shoppersfood.com/flyers/3791d4b7-567c-43db-bed5-9a75a7a0cd80?store=2358")
     # scrape(3, "https://freshworld.us/weekly_special.phtml#&gid=1&pid=1")
-
-# testing
