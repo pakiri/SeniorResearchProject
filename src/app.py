@@ -1,7 +1,10 @@
 from flask import Flask, request, redirect, Response, flash
 from flask.templating import render_template
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, session
 from flask_migrate import Migrate, migrate
+import requests
+
+USER_ZIPCODE = "22312"
 
 app = Flask(__name__) # creates a new Flask app
 
@@ -40,9 +43,12 @@ class PricingInfo(db.Model):
     store_id = db.Column(db.Integer, unique=False)
     price = db.Column(db.Float, unique=False)
     created_date = db.Column(db.String(20), unique=False)
+    image_url = db.Column(db.String(75), unique=False)
+    pre_price_text = db.Column(db.String(20), unique=False)
+    post_price_text = db.Column(db.String(20), unique=False)
 
     def __repr__(self):
-        return f"Product ID: {self.product_id}, Item Name: {self.item_name}, Store ID: {self.store_id}, Zip Code: {self.zipcode}, Price: {self.price}, Unit: {self.unit}, Date of Creation: {self.created_date}"
+        return f"Product ID: {self.product_id}, Item Name: {self.item_name}, Store ID: {self.store_id}, Zip Code: {self.zipcode}, Price: {self.price}, Unit: {self.unit}, Date of Creation: {self.created_date}, Image URL: {self.image_url}, Pre Price Text: {self.pre_price_text}, Post Price Text: {self.post_price_text}"
 
 # displayed on the home page
 @app.route('/')
@@ -58,10 +64,10 @@ def index():
 @app.route('/zipcode', methods=['POST'])
 def searchZipCode():
     # from models.zipcodes import ZipCode
-    user_zipcode = request.form.get("user_zipcode")
+    USER_ZIPCODE = request.form.get("user_zipcode")
 
-    if user_zipcode and len(user_zipcode) == 5 and user_zipcode.isnumeric():
-        zipcode = ZipCode.query.get(user_zipcode)
+    if USER_ZIPCODE and len(USER_ZIPCODE) == 5 and USER_ZIPCODE.isnumeric():
+        zipcode = ZipCode.query.get(USER_ZIPCODE)
         pricingInfo = PricingInfo.query.all()
         return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo)
     return redirect('/')
@@ -83,15 +89,40 @@ def refreshInfo():
     # 1. image extraction from store url
     store_id = request.form.get("user_store")
     store = Stores.query.get(store_id)
-    import imagescraperv1
-    images_path = imagescraperv1.scrape(store_id, store.url)
-    return redirect('/admin/refresh') # placeholder for now
 
-    # 2. data extraction from images
-    # ...
+    # 2. data extraction from JSON
+    url = f"https://backflipp.wishabi.com/flipp/items/search?locale=en-us&postal_code={USER_ZIPCODE}&q={store.store_name}"
+    response = requests.get(url)
+
+    if response.status_code == 200: # if request was successful
+        data = response.json()
+        items = data["items"]
+        PricingInfo.query.filter_by(store_id=store_id, zipcode=USER_ZIPCODE).delete() # delete all instances in the database where the store ID and zip code match
+        print(f"Deleted data for {store_id}, {USER_ZIPCODE}")
+    else:
+        print(f"Error: {response.status_code}")
 
     # 3. saving data in database
-    # ... 
+    for item in items:
+        if "_L2" in item and item["_L2"] == "Food Items":
+            newPricingInfo = PricingInfo()
+            newPricingInfo.image_url = item["clean_image_url"]
+            newPricingInfo.item_name = item["name"]
+            newPricingInfo.store_id = store_id
+            newPricingInfo.zipcode = USER_ZIPCODE
+            newPricingInfo.price = item["current_price"]
+            newPricingInfo.pre_price_text = item["pre_price_text"]
+            newPricingInfo.post_price_text = item["post_price_text"]
+            
+            db.session.add(newPricingInfo)
+    
+    db.session.commit()
+    print("Refreshed information in the database")
+    return redirect('/admin/refresh')
+
+    # import imagescraperv1
+    # images_path = imagescraperv1.scrape(store_id, store.url)
+    # return redirect('/admin/refresh') # placeholder for now
 
 @app.route('/admin/reports')
 def displayReports():

@@ -27,9 +27,18 @@
                             <td>{{item.item_name}}</td>
                             <td>{{item.store_id}}</td>
                             <td>{{item.zipcode}}</td>
-                            <td>{{item.price}}</td>
+                            {% if item.pre_price_text and item.post_price_text%}
+                                <td>{{item.pre_price_text + "$" + item.price|string + item.post_price_text}}</td>
+                            {% else %}
+                                <td>{{item.price}}</td>
+                            {% endif %}
                             <td>{{item.unit}}</td>
-                            <td>{{item.price/item.unit[:-3] | float}}</td>
+                            {% if item.unit %}
+                                <td>{{item.price/item.unit[:-3] | float}}</td>
+                            {% else %}
+                                <td>{{None}}</td>
+                            {% endif %}
+                            <td><img src={{item.image_url}}></img></td>
                         </tbody>
                     {% endif %}
                 {% endfor %}
