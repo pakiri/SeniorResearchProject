@@ -84,6 +84,7 @@ def scrape(store_id, url, zipcode="22312"):
 
     # set up Selenium WebDriver without opening a new browser
     service = Service(CHROMEDRIVER_PATH)
+    # driver = webdriver.Chrome(service=service)
     option = webdriver.ChromeOptions()
     option.add_argument("headless")
     driver = webdriver.Chrome(service=service, options=option)
@@ -119,7 +120,7 @@ def scrape(store_id, url, zipcode="22312"):
             # time.sleep(1)
 
             for num in zipcode:
-                time.sleep(random.uniform(0.5, 1))
+                time.sleep(random.uniform(0.25, 0.5))
                 driver.find_element(By.XPATH, "//input[@id='locationInput']").send_keys(num)    
 
             button2 = driver.find_element(By.CSS_SELECTOR, ".svg-inline--fa")

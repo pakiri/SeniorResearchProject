@@ -92,10 +92,25 @@
     </style>
 </head>
 <body>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <div class="nav">
         <a href="/">Home</a>
         <h1>GroceryCheck</h1>
         <a href="/admin">Admin Link</a>
+    </div>
+    <div>
+        <a href="{{ url_for('register') }}">
+            <button>Sign Up</button>
+        </a>
+        <a href="{{ url_for('login') }}">
+            <button>Login</button>
+        </a>
     </div>
     <div class="container">
         <h3>Enter a Zip Code</h3>
