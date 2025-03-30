@@ -1,26 +1,106 @@
 <!DOCTYPE html>
-<html>
-    <h3>Pricing Information</h3>
-    <body>
-        <a href='/'>Home</a>
-        <br>
-        <a href='/admin'>Admin</a>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 900px;
+        }
+        h3 {
+            color: #333;
+        }
+        .nav {
+            margin-bottom: 15px;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #007BFF;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        /* added separately */
+        th:last-child, td:last-child {
+            width: 82px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Pricing Information</h3>
+        <div class="nav">
+            <a href="/">Home</a> | 
+            <a href="/admin">Admin</a>
+        </div>
         <form action="/admin/download">
             <button type="submit">Download</button>
         </form>
         <table>
             <thead>
-                <th>ID</th>
-                <th>Product ID</th>
-                <th>Item Name</th>
-                <th>Store ID</th>
-                <th>Zip Code</th>
-                <th>Price</th>
-                <th>Unit</th>
-                <th>Date of Creation</th>
+                <tr>
+                    <th>ID</th>
+                    <th>Product ID</th>
+                    <th>Item Name</th>
+                    <th>Store ID</th>
+                    <th>Zip Code</th>
+                    <th>Price</th>
+                    <th>Unit</th>
+                    <th>Date of Creation</th>
+                </tr>
             </thead>
-            {% for item in pricingInfo %}
-                <tbody>
+            <tbody>
+                {% for item in pricingInfo %}
+                <tr>
                     <td>{{item.id}}</td>
                     <td>{{item.product_id}}</td>
                     <td>{{item.item_name}}</td>
@@ -29,8 +109,10 @@
                     <td>{{item.price}}</td>
                     <td>{{item.unit}}</td>
                     <td>{{item.created_date}}</td>
-                </tbody>
-            {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
-    </body>
+    </div>
+</body>
 </html>

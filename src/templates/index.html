@@ -1,6 +1,103 @@
 <!DOCTYPE html>
-<html>
-    <body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryCheck</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+        }
+        h1 {
+            font-style: italic;
+        }
+        h3 {
+            color: #333;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        .nav a {
+            text-decoration: none;
+            font-weight: bold;
+            color: #007BFF;
+            transition: color 0.3s;
+        }
+        .nav a:hover {
+            color: #0056b3;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        img {
+            max-width: 50px;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <a href="/">Home</a>
+        <h1>GroceryCheck</h1>
+        <a href="/admin">Admin Link</a>
+    </div>
+    <div class="container">
         <h3>Enter a Zip Code</h3>
         <form action="/zipcode" method="POST">
             <input name="user_zipcode" type="text" placeholder="Zip Code" autocomplete="off" value="">
@@ -10,41 +107,49 @@
             <label>{{zipcode.zipcode}} — {{zipcode.city}}, {{zipcode.state}}</label>
             <table>
                 <thead>
-                    <th>ID</th>
-                    <th>Product ID</th>
-                    <th>Item Name</th>
-                    <th>Store ID</th>
-                    <th>Zip Code</th>
-                    <th>Price</th>
-                    <th>Unit</th>
-                    <th>Price per Unit</th>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product ID</th>
+                        <th>Item Name</th>
+                        <th>Store ID</th>
+                        <th>Zip Code</th>
+                        <th>Price</th>
+                        <th>Unit</th>
+                        <th>Price per Unit</th>
+                        <th>Image</th>
+                    </tr>
                 </thead>
+                <tbody>
                 {% for item in pricingInfo %}
                     {% if item.zipcode == zipcode.zipcode %}
-                        <tbody>
+                        <tr>
                             <td>{{item.id}}</td>
                             <td>{{item.product_id}}</td>
                             <td>{{item.item_name}}</td>
                             <td>{{item.store_id}}</td>
                             <td>{{item.zipcode}}</td>
-                            {% if item.pre_price_text and item.post_price_text%}
-                                <td>{{item.pre_price_text + "$" + item.price|string + item.post_price_text}}</td>
-                            {% else %}
-                                <td>{{item.price}}</td>
-                            {% endif %}
+                            <td>
+                                {% if item.pre_price_text and item.post_price_text %}
+                                    {{item.pre_price_text + "$" + item.price|string + item.post_price_text}}
+                                {% else %}
+                                    {{item.price}}
+                                {% endif %}
+                            </td>
                             <td>{{item.unit}}</td>
-                            {% if item.unit %}
-                                <td>{{item.price/item.unit[:-3] | float}}</td>
-                            {% else %}
-                                <td>{{None}}</td>
-                            {% endif %}
-                            <td><img src={{item.image_url}}></img></td>
-                        </tbody>
+                            <td>
+                                {% if item.unit %}
+                                    {{item.price/item.unit[:-3] | float}}
+                                {% else %}
+                                    {{None}}
+                                {% endif %}
+                            </td>
+                            <td><img src="{{item.image_url}}" alt="Product Image"></td>
+                        </tr>
                     {% endif %}
                 {% endfor %}
+                </tbody>
             </table>
         {% endif %}
-        <br>
-        <a href='/admin'>Admin Link</a>
-    </body>
+    </div>
+</body>
 </html>
