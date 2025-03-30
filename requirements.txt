@@ -5,3 +5,5 @@ wand
 flask
 flask_sqlalchemy
 flask_migrate
+sqlalchemy
+werkzeug
