@@ -21,8 +21,6 @@ app = Flask(__name__) # creates a new Flask app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SRdata.db'
 app.config['SECRET_KEY'] = 'your_secret_key'  # added to enable flashing messages
 
-role = "user"
-
 # creates a new database for the app
 db = SQLAlchemy(app)
 
@@ -65,10 +63,12 @@ class PricingInfo(db.Model):
         return f"Product ID: {self.product_id}, Item Name: {self.item_name}, Store ID: {self.store_id}, Zip Code: {self.zipcode}, Price: {self.price}, Unit: {self.unit}, Date of Creation: {self.created_date}, Image URL: {self.image_url}, Pre Price Text: {self.pre_price_text}, Post Price Text: {self.post_price_text}"
 
 class User(db.Model):
+    __tablename__ = "Users"
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
+    username = db.Column(db.String(150), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(150), nullable=False)
+    role = db.Column(db.String(5), nullable=False)
 
 # displayed on the home page
 @app.route('/')
@@ -95,7 +95,8 @@ def searchZipCode():
 # main admin page
 @app.route('/admin')
 def adminPage():
-    if role == "admin":
+    user = User.query.filter_by(username=session['GCusername']).first()
+    if user.role == "admin":
         return render_template('admin.html')
     return redirect('/')
 
@@ -165,7 +166,7 @@ def download():
     for item in pricingInfo:
         csv_data += f"{item.id},{item.product_id},{item.item_name},{item.store_id},{item.zipcode},{item.price},{item.unit},{item.created_date}\n"
     
-    # Create a direct download response with the CSV data and appropriate headers
+    # create a direct download response with the CSV data and appropriate headers
     response = Response(csv_data, content_type="text/csv")
     response.headers["Content-Disposition"] = "attachment; filename=priceInfo.csv"
 
