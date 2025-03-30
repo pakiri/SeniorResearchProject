@@ -1,9 +1,10 @@
-from flask import Flask, request, redirect, Response, flash
+from flask import Flask, request, redirect, Response, flash, render_template, url_for, session
 from flask.templating import render_template
-from flask_sqlalchemy import SQLAlchemy, session
+from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, migrate
-import requests
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import requests
 import re
 
 USER_ZIPCODE = "22312"
@@ -18,8 +19,9 @@ app = Flask(__name__) # creates a new Flask app
 
 # link the database to the Flask app's config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SRdata.db'
+app.config['SECRET_KEY'] = 'your_secret_key'  # added to enable flashing messages
 
-role ="user"
+role = "user"
 
 # creates a new database for the app
 db = SQLAlchemy(app)
@@ -61,6 +63,12 @@ class PricingInfo(db.Model):
 
     def __repr__(self):
         return f"Product ID: {self.product_id}, Item Name: {self.item_name}, Store ID: {self.store_id}, Zip Code: {self.zipcode}, Price: {self.price}, Unit: {self.unit}, Date of Creation: {self.created_date}, Image URL: {self.image_url}, Pre Price Text: {self.pre_price_text}, Post Price Text: {self.post_price_text}"
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(150), nullable=False)
 
 # displayed on the home page
 @app.route('/')
@@ -162,6 +170,63 @@ def download():
     response.headers["Content-Disposition"] = "attachment; filename=priceInfo.csv"
 
     return response
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm = request.form['confirm']
+        hashedPassword = generate_password_hash(password, method='pbkdf2:sha256')
+
+        if password != confirm:
+            flash('Passwords do not match!', 'danger')
+            return redirect(url_for('register'))
+        
+        if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
+            flash('Username or email already exists!', 'danger')
+            return redirect(url_for('register'))
+        
+        newUser = User(username=username, email=email, password=hashedPassword)
+        db.session.add(newUser)
+        db.session.commit()
+        flash('Registration successful! Please log in.', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        
+        if user and check_password_hash(user.password, password):
+            session['GCuser_id'] = user.id
+            session['GCusername'] = username
+            flash('Login successful!', 'success')
+            return redirect(url_for('dashboard'))
+            # return redirect(url_for('dashboard'), username=username)
+            # return render_template('dashboard.html', username=username)
+        else:
+            flash('Invalid username or password.', 'danger')
+            return redirect(url_for('login'))
+    return render_template('login.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'GCuser_id' not in session:
+        flash('You must log in first.', 'warning')
+        return redirect(url_for('login'))
+    return render_template('dashboard.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('GCuser_id', None)
+    session.pop('GCusername', None)
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
 
 with app.app_context():
     db.create_all()
