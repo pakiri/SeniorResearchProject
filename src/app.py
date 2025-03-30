@@ -19,6 +19,8 @@ app = Flask(__name__) # creates a new Flask app
 # link the database to the Flask app's config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SRdata.db'
 
+role ="user"
+
 # creates a new database for the app
 db = SQLAlchemy(app)
 
@@ -85,7 +87,9 @@ def searchZipCode():
 # main admin page
 @app.route('/admin')
 def adminPage():
-    return render_template('admin.html')
+    if role == "admin":
+        return render_template('admin.html')
+    return redirect('/')
 
 # displays store options and refreshes the content of that specific store (i.e. imagescrapes from that store)
 @app.route('/admin/refresh')
