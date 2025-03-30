@@ -21,7 +21,7 @@ class User(db.Model):
 
 @app.route('/')
 def index():
-    return render_template('index_test.html')
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
