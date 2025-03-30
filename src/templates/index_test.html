@@ -101,9 +101,14 @@
     {% endwith %}
     <div class="nav">
         <a href="/">Home</a>
-        <h1>GroceryCheck</h1>
+        {% if session['GCusername']%}
         <a href="/admin">Admin Link</a>
+        <p>Hello, {{ session['GCusername'] }}!</p>
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
     </div>
+    <h1>GroceryCheck</h1>
+    {% if not session['GCusername'] %}
     <div>
         <a href="{{ url_for('register') }}">
             <button>Sign Up</button>
@@ -112,6 +117,7 @@
             <button>Login</button>
         </a>
     </div>
+    {% endif %}
     <div class="container">
         <h3>Enter a Zip Code</h3>
         <form action="/zipcode" method="POST">

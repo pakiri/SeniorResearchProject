@@ -8,7 +8,7 @@ import re
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SRdata.db'
-app.config['SECRET_KEY'] = 'your_secret_key'  # Added to enable flashing messages
+app.config['SECRET_KEY'] = 'your_secret_key'  # added to enable flashing messages
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -29,14 +29,19 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        confirm = request.form['confirm']
+        hashedPassword = generate_password_hash(password, method='pbkdf2:sha256')
+
+        if password != confirm:
+            flash('Passwords do not match!', 'danger')
+            return redirect(url_for('register'))
         
         if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
             flash('Username or email already exists!', 'danger')
             return redirect(url_for('register'))
         
-        new_user = User(username=username, email=email, password=hashed_password)
-        db.session.add(new_user)
+        newUser = User(username=username, email=email, password=hashedPassword)
+        db.session.add(newUser)
         db.session.commit()
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
@@ -50,9 +55,12 @@ def login():
         user = User.query.filter_by(username=username).first()
         
         if user and check_password_hash(user.password, password):
-            session['user_id'] = user.id
+            session['GCuser_id'] = user.id
+            session['GCusername'] = username
             flash('Login successful!', 'success')
             return redirect(url_for('dashboard'))
+            # return redirect(url_for('dashboard'), username=username)
+            # return render_template('dashboard.html', username=username)
         else:
             flash('Invalid username or password.', 'danger')
             return redirect(url_for('login'))
@@ -60,14 +68,15 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    if 'user_id' not in session:
+    if 'GCuser_id' not in session:
         flash('You must log in first.', 'warning')
         return redirect(url_for('login'))
     return render_template('dashboard.html')
 
 @app.route('/logout')
 def logout():
-    session.pop('user_id', None)
+    session.pop('GCuser_id', None)
+    session.pop('GCusername', None)
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
