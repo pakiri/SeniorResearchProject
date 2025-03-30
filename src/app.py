@@ -3,8 +3,16 @@ from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy, session
 from flask_migrate import Migrate, migrate
 import requests
+from datetime import datetime
+import re
 
 USER_ZIPCODE = "22312"
+
+categories = [r"\bapples?\b(?!\s*sauce)",
+              r"grape(?!fruit)",
+              r"onion(?! ring)",
+              r"oranges",
+              r"tomato(?! )"]
 
 app = Flask(__name__) # creates a new Flask app
 
@@ -27,6 +35,7 @@ class ZipCode(db.Model):
         return f"Location: {self.zipcode}, {self.city}, {self.state}"
 
 class Stores(db.Model):
+    __tablename__ = "Stores"
     store_id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     store_name = db.Column(db.String(20), nullable=False, unique=False)
     url = db.Column(db.String(150), nullable=False, unique=True)
@@ -35,6 +44,7 @@ class Stores(db.Model):
         return f"Store Name : {self.store_name}, URL: {self.url}"
 
 class PricingInfo(db.Model):
+    __tablename__ = "Pricing_Info"
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     product_id = db.Column(db.Integer, unique=False)
     item_name = db.Column(db.String(50), unique=False)
@@ -104,7 +114,7 @@ def refreshInfo():
 
     # 3. saving data in database
     for item in items:
-        if "_L2" in item and item["_L2"] == "Food Items":
+        if "_L2" in item and item["_L2"] == "Food Items" and item["current_price"]:
             newPricingInfo = PricingInfo()
             newPricingInfo.image_url = item["clean_image_url"]
             newPricingInfo.item_name = item["name"]
@@ -113,6 +123,11 @@ def refreshInfo():
             newPricingInfo.price = item["current_price"]
             newPricingInfo.pre_price_text = item["pre_price_text"]
             newPricingInfo.post_price_text = item["post_price_text"]
+            newPricingInfo.created_date = datetime.now().strftime("%Y-%m-%d")
+            
+            for idx, rString in enumerate(categories):
+                if re.search(rString, item["name"], re.IGNORECASE):
+                    newPricingInfo.product_id = idx+1
             
             db.session.add(newPricingInfo)
     
@@ -147,6 +162,6 @@ def download():
 with app.app_context():
     db.create_all()
 
-if __name__ == "__main__":
-    app.debug = True # turns on debugger mode
-    app.run()
+# if __name__ == "__main__":
+app.debug = True # turns on debugger mode
+app.run()
