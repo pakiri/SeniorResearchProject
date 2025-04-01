@@ -86,8 +86,8 @@ def searchZipCode():
     per_page = 9  
     query = PricingInfo.query
     if user_zipcode:
-        if len(user_zipcode)!= 5 and user_zipcode.isnumeric():
-            flash('Invalid Zip Code','danger')
+        if len(user_zipcode) != 5 and user_zipcode.isnumeric():
+            flash('Invalid Zip Code', 'danger')
             return redirect('/')
         query = query.filter(PricingInfo.zipcode == user_zipcode)
     if item_name:
@@ -96,7 +96,7 @@ def searchZipCode():
         query = query.filter(PricingInfo.store_id == store_id)
     pricingInfo = query.paginate(page=page, per_page=per_page)
     zipcode = ZipCode.query.get(user_zipcode) if user_zipcode else None
-    stores=Stores.query.all()
+    stores = Stores.query.all()
 
     return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo, itemName=item_name,stores=stores, selected_store_id=str(store_id))
 
@@ -108,7 +108,7 @@ def adminPage():
         return render_template('admin.html')
     return redirect('/')
 
-# displays store options and refreshes the content of that specific store (i.e. imagescrapes from that store)
+# displays store options and refreshes the content of that specific store (i.e. scrapes from that store)
 @app.route('/admin/refresh')
 def refresh():
     # from models.stores import Stores

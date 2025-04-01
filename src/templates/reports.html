@@ -106,7 +106,7 @@
                     <td>{{item.item_name}}</td>
                     <td>{{item.store_id}}</td>
                     <td>{{item.zipcode}}</td>
-                    <td>{{item.price}}</td>
+                    <td>{{'%0.2f' % item.price}}</td>
                     <td>{{item.created_date}}</td>
                 </tr>
                 {% endfor %}

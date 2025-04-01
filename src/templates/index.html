@@ -93,7 +93,7 @@
                     <select name="user_store" class="form-select">
                         <option value="">All Stores</option>
                         {% for store in stores %}
-                        <option value="{{ store.store_id }}" {% if store.store_id|string==selected_store_id %}selected{% endif %}>
+                        <option value="{{ store.store_id }}" {% if store.store_id|string == selected_store_id %}selected{% endif %}>
                             {{ store.store_name }}</option>
                         {% endfor %}
                     </select>
@@ -125,11 +125,7 @@
                         <p class="card-text mb-1"><strong>Store:</strong> {{ item.store.store_name }}</p>
                         <p class="card-text">
                             <strong>Price:</strong>
-                            {% if item.pre_price_text and item.post_price_text %}
-                            {{ item.pre_price_text + "$" + item.price|string + item.post_price_text }}
-                            {% else %}
-                            ${{ item.price }}
-                            {% endif %}
+                            ${{'%0.2f' % item.price }}
                         </p>
                     </div>
                 </div>
