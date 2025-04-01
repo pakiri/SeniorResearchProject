@@ -1,6 +1,7 @@
 from flask import Flask, request, redirect, Response, flash, render_template, url_for, session
 from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
 from flask_migrate import Migrate, migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -52,12 +53,13 @@ class PricingInfo(db.Model):
     item_name = db.Column(db.String(50), unique=False)
     zipcode = db.Column(db.String(5), unique=False)
     unit = db.Column(db.String(20), unique=False)
-    store_id = db.Column(db.Integer, unique=False)
+    store_id = db.Column(db.Integer, db.ForeignKey('Stores.store_id'))
     price = db.Column(db.Float, unique=False)
     created_date = db.Column(db.String(20), unique=False)
     image_url = db.Column(db.String(75), unique=False)
     pre_price_text = db.Column(db.String(20), unique=False)
     post_price_text = db.Column(db.String(20), unique=False)
+    store = relationship('Stores', backref='pricing_items')
 
     def __repr__(self):
         return f"Product ID: {self.product_id}, Item Name: {self.item_name}, Store ID: {self.store_id}, Zip Code: {self.zipcode}, Price: {self.price}, Unit: {self.unit}, Date of Creation: {self.created_date}, Image URL: {self.image_url}, Pre Price Text: {self.pre_price_text}, Post Price Text: {self.post_price_text}"
@@ -75,22 +77,28 @@ class User(db.Model):
 def index():
     return render_template('index.html')
 
-# @app.route('/zipcodes')
-# def listZipCodes():
-#     # from models.zipcodes import ZipCode
-#     zipcodes = ZipCode.query.all()
-#     return render_template('index.html', zipcodes=zipcodes)
-
-@app.route('/zipcode', methods=['POST'])
+@app.route('/zipcode', methods=['GET', 'POST'])
 def searchZipCode():
-    # from models.zipcodes import ZipCode
-    USER_ZIPCODE = request.form.get("user_zipcode")
+    user_zipcode = request.form.get("user_zipcode") or request.args.get("zipcode")
+    item_name = request.form.get("user_itemName") or request.args.get("itemName")
+    store_id = request.form.get("user_store") or request.args.get("store_id")
+    page = request.args.get("page", 1, type=int)
+    per_page = 9  
+    query = PricingInfo.query
+    if user_zipcode:
+        if len(user_zipcode)!= 5 and user_zipcode.isnumeric():
+            flash('Invalid Zip Code','danger')
+            return redirect('/')
+        query = query.filter(PricingInfo.zipcode == user_zipcode)
+    if item_name:
+        query = query.filter(PricingInfo.item_name.ilike(f"%{item_name}%"))
+    if store_id:
+        query = query.filter(PricingInfo.store_id == store_id)
+    pricingInfo = query.paginate(page=page, per_page=per_page)
+    zipcode = ZipCode.query.get(user_zipcode) if user_zipcode else None
+    stores=Stores.query.all()
 
-    if USER_ZIPCODE and len(USER_ZIPCODE) == 5 and USER_ZIPCODE.isnumeric():
-        zipcode = ZipCode.query.get(USER_ZIPCODE)
-        pricingInfo = PricingInfo.query.all()
-        return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo)
-    return redirect('/')
+    return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo, itemName=item_name,stores=stores, selected_store_id=str(store_id))
 
 # main admin page
 @app.route('/admin')
@@ -148,10 +156,6 @@ def refreshInfo():
     print("Refreshed information in the database")
     return redirect('/admin/refresh')
 
-    # import imagescraperv1
-    # images_path = imagescraperv1.scrape(store_id, store.url)
-    # return redirect('/admin/refresh') # placeholder for now
-
 @app.route('/admin/reports')
 def displayReports():
     pricingInfo = PricingInfo.query.all()
@@ -164,7 +168,7 @@ def download():
     # store princingInfo data in a CSV string
     csv_data = "ID,Product ID,Item Name,Store ID,Zip Code,Price,Unit,Date of Creation\n"
     for item in pricingInfo:
-        csv_data += f"{item.id},{item.product_id},{item.item_name},{item.store_id},{item.zipcode},{item.price},{item.unit},{item.created_date}\n"
+        csv_data += f"{item.id},{item.product_id},{item.item_name.replace(",", "")},{item.store_id},{item.zipcode},{item.price},{item.unit},{item.created_date}\n"
     
     # create a direct download response with the CSV data and appropriate headers
     response = Response(csv_data, content_type="text/csv")
@@ -189,7 +193,7 @@ def register():
             flash('Username or email already exists!', 'danger')
             return redirect(url_for('register'))
         
-        newUser = User(username=username, email=email, password=hashedPassword)
+        newUser = User(username=username, email=email, password=hashedPassword, role="user")
         db.session.add(newUser)
         db.session.commit()
         flash('Registration successful! Please log in.', 'success')
@@ -207,9 +211,7 @@ def login():
             session['GCuser_id'] = user.id
             session['GCusername'] = username
             flash('Login successful!', 'success')
-            return redirect(url_for('dashboard'))
-            # return redirect(url_for('dashboard'), username=username)
-            # return render_template('dashboard.html', username=username)
+            return redirect(url_for('index'))
         else:
             flash('Invalid username or password.', 'danger')
             return redirect(url_for('login'))

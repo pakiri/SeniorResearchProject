@@ -1,176 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GroceryCheck</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            padding-top: 20px;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 800px;
-        }
-        h1 {
-            font-style: italic;
-        }
-        h3 {
-            color: #333;
-        }
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 20px;
-        }
-        .nav a {
-            text-decoration: none;
-            font-weight: bold;
-            color: #007BFF;
-            transition: color 0.3s;
-        }
-        .nav a:hover {
-            color: #0056b3;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            width: 200px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        button {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-size: 14px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
-        }
-        th {
-            background-color: #007BFF;
-            color: white;
-        }
-        img {
-            max-width: 50px;
-            height: auto;
-            border-radius: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 </head>
-<body>
+
+<body class="bg-light">
+
+    <!-- <div class="container py-4"> -->
+
     {% with messages = get_flashed_messages(with_categories=True) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    <div class="nav">
-        <a href="/">Home</a>
-        {% if session['GCusername'] %}
-        <a href="/admin">Admin Link</a>
-        <p>Hello, {{ session['GCusername'] }}!</p>
-        <a href="{{ url_for('logout') }}">Logout</a>
-        {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show"
+        role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <h1>GroceryCheck</h1>
-    {% if not session['GCusername'] %}
-    <div>
-        <a href="{{ url_for('register') }}">
-            <button>Sign Up</button>
-        </a>
-        <a href="{{ url_for('login') }}">
-            <button>Login</button>
-        </a>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" width="50" height="50"
+                    class="d-inline-block align-text-top">
+                <span class="fw-bold text-white">GroceryCheck</span>
+            </a>
+
+            <!-- <a class="navbar-brand fw-bold" href="/">GroceryCheck</a> -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 ">
+
+                    {% if session['GCusername'] %}
+                    <li class="nav-item">
+                        <span class="nav-link disabled text-white fw-bold">Hello, {{ session['GCusername'] }}!</span>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <!-- <a class="nav-link text-white fw-bold" href="/admin">Admin Link</a> -->
+                        <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="adminDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Admin
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="/admin/refresh">Refresh List</a>
+                            <a class="dropdown-item" href="/admin/reports">Access Reports</a>
+                        </div>
+                    </li>
+                    <!-- <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item" href="/admin/refresh">Refresh List</a>
+                        <a class="dropdown-item" href="/admin/reports">Access Reports</a>
+                    </div> -->
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-bold" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-light me-2 text-white fw-bold" href="{{ url_for('register') }}">Sign
+                            Up</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-light text-white fw-bold" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="card shadow-sm p-4 mb-4">
+            <h5 class="mb-3">Search for Items</h5>
+            <form action="/zipcode" method="POST" class="row g-3">
+                <div class="col-md-4">
+                    <input name="user_zipcode" type="text" class="form-control" placeholder="Zip Code"
+                        autocomplete="off" value="{{ zipcode.zipcode if zipcode else '' }}" />
+                </div>
+                <div class="col-md-4">
+                    <input name="user_itemName" type="text" class="form-control" placeholder="Item Name"
+                        autocomplete="off" value="{{ itemName if itemName else '' }}" />
+                </div>
+                <div class="col-md-4">
+                    <select name="user_store" class="form-select">
+                        <option value="">All Stores</option>
+                        {% for store in stores %}
+                        <option value="{{ store.store_id }}" {% if store.store_id|string==selected_store_id %}selected{% endif %}>
+                            {{ store.store_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if zipcode %}
+    <div class="px-4 mb-4">
+        <h5 class="mb-4">Showing results for: <strong>{{ zipcode.zipcode }}</strong> — {{ zipcode.city }}, {{
+            zipcode.state }}</h5>
+        {% if pricingInfo.items|length == 0 %}
+        <div class="alert alert-warning text-center" role="alert">
+            No matching products found.
+        </div>
+        {% else %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            {% for item in pricingInfo.items %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.item_name }}"
+                        style="height: 180px; object-fit: contain;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.item_name }}</h5>
+                        <p class="card-text mb-1"><strong>Store:</strong> {{ item.store.store_name }}</p>
+                        <p class="card-text">
+                            <strong>Price:</strong>
+                            {% if item.pre_price_text and item.post_price_text %}
+                            {{ item.pre_price_text + "$" + item.price|string + item.post_price_text }}
+                            {% else %}
+                            ${{ item.price }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if pricingInfo.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+                {% if pricingInfo.has_prev %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('searchZipCode', page=pricingInfo.prev_num, zipcode=zipcode.zipcode,itemName=itemName,store_id=selected_store_id) }}">&laquo;
+                        Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo; Previous</span></li>
+                {% endif %}
+
+                {% for page_num in pricingInfo.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                {% if page_num %}
+                {% if page_num == pricingInfo.page %}
+                <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('searchZipCode', page=page_num, zipcode=zipcode.zipcode, itemName=itemName,store_id=selected_store_id) }}">{{
+                        page_num }}</a>
+                </li>
+                {% endif %}
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if pricingInfo.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('searchZipCode', page=pricingInfo.next_num, zipcode=zipcode.zipcode,itemName=itemName,store_id=selected_store_id) }}">Next
+                        &raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
     {% endif %}
-    <div class="container">
-        <h3>Enter a Zip Code</h3>
-        <form action="/zipcode" method="POST">
-            <input name="user_zipcode" type="text" placeholder="Zip Code" autocomplete="off" value="">
-            <button type="submit">Search</button>
-        </form>
-        {% if zipcode %}
-            <label>{{zipcode.zipcode}} — {{zipcode.city}}, {{zipcode.state}}</label>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Product ID</th>
-                        <th>Item Name</th>
-                        <th>Store ID</th>
-                        <th>Zip Code</th>
-                        <th>Price</th>
-                        <th>Unit</th>
-                        <th>Price per Unit</th>
-                        <th>Image</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for item in pricingInfo %}
-                    {% if item.zipcode == zipcode.zipcode %}
-                        <tr>
-                            <td>{{item.id}}</td>
-                            <td>{{item.product_id}}</td>
-                            <td>{{item.item_name}}</td>
-                            <td>{{item.store_id}}</td>
-                            <td>{{item.zipcode}}</td>
-                            <td>
-                                {% if item.pre_price_text and item.post_price_text %}
-                                    {{item.pre_price_text + "$" + item.price|string + item.post_price_text}}
-                                {% else %}
-                                    {{item.price}}
-                                {% endif %}
-                            </td>
-                            <td>{{item.unit}}</td>
-                            <td>
-                                {% if item.unit %}
-                                    {{item.price/item.unit[:-3] | float}}
-                                {% else %}
-                                    {{None}}
-                                {% endif %}
-                            </td>
-                            <td><img src="{{item.image_url}}" alt="Product Image"></td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    </div>
+
+    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
+
 </html>
