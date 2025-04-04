@@ -90,9 +90,9 @@ def searchZipCode():
             flash('Invalid Zip Code', 'danger')
             return redirect('/')
         query = query.filter(PricingInfo.zipcode == user_zipcode)
-    if item_name:
+    if item_name and item_name != "None":
         query = query.filter(PricingInfo.item_name.ilike(f"%{item_name}%"))
-    if store_id:
+    if store_id and store_id != "None":
         query = query.filter(PricingInfo.store_id == store_id)
     pricingInfo = query.paginate(page=page, per_page=per_page)
     zipcode = ZipCode.query.get(user_zipcode) if user_zipcode else None
