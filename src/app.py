@@ -161,6 +161,11 @@ def displayReports():
     pricingInfo = PricingInfo.query.all()
     return render_template('reports.html', pricingInfo=pricingInfo)
 
+@app.route('/admin/users')
+def displayUsers():
+    users = User.query.all()
+    return render_template('users.html', users=users)
+
 @app.route('/admin/download')
 def download():
     pricingInfo = PricingInfo.query.all()
