@@ -103,8 +103,9 @@ def searchZipCode():
 # main admin page
 @app.route('/admin')
 def adminPage():
-    user = User.query.filter_by(username=session['GCusername']).first()
-    if user.role == "admin":
+    # user = User.query.filter_by(username=session['GCusername']).first()
+    # if user.role == "admin":
+    if session['GCuser_role'] == "admin":
         return render_template('admin.html')
     return redirect('/')
 
@@ -215,6 +216,7 @@ def login():
         if user and check_password_hash(user.password, password):
             session['GCuser_id'] = user.id
             session['GCusername'] = username
+            session['GCuser_role'] = user.role
             flash('Login successful!', 'success')
             return redirect(url_for('index'))
         else:
@@ -233,6 +235,7 @@ def dashboard():
 def logout():
     session.pop('GCuser_id', None)
     session.pop('GCusername', None)
+    session.pop('GCuser_role', None)
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
