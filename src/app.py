@@ -162,25 +162,33 @@ def displayReports():
     pricingInfo = PricingInfo.query.all()
     return render_template('reports.html', pricingInfo=pricingInfo)
 
-@app.route('/admin/users')
-def displayUsers():
-    users = User.query.all()
-    return render_template('users.html', users=users)
-
 @app.route('/admin/download')
 def download():
     pricingInfo = PricingInfo.query.all()
 
     # store princingInfo data in a CSV string
-    csv_data = "ID,Product ID,Item Name,Store ID,Zip Code,Price,Unit,Date of Creation\n"
+    csv_data = "ID,Product ID,Item Name,Store ID,Zip Code,Price,Date of Creation\n"
     for item in pricingInfo:
-        csv_data += f"{item.id},{item.product_id},{item.item_name.replace(",", "")},{item.store_id},{item.zipcode},{item.price},{item.unit},{item.created_date}\n"
+        csv_data += f"{item.id},{item.product_id},{item.item_name.replace(",", "")},{item.store_id},{item.zipcode},{'%0.2f' % item.price},{item.created_date}\n"
     
     # create a direct download response with the CSV data and appropriate headers
     response = Response(csv_data, content_type="text/csv")
     response.headers["Content-Disposition"] = "attachment; filename=priceInfo.csv"
 
     return response
+
+@app.route('/admin/users')
+def displayUsers():
+    users = User.query.all()
+    return render_template('users.html', users=users)
+
+@app.route('/admin/users/changeRole', methods=['POST'])
+def changeRole():
+    id = request.form.get("id")
+    user = User.query.get(id)
+    user.role = "user" if user.role == "admin" else "admin"
+    db.session.commit()
+    return redirect(url_for('displayUsers'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

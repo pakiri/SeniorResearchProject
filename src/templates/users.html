@@ -38,17 +38,16 @@
             margin: 0 10px;
             font-weight: bold;
         }
-        button {
-            padding: 10px;
-            margin-top: 10px;
+        .user-button {
+            padding: 6px 12px;
             border-radius: 5px;
             border: none;
-            font-size: 16px;
+            font-size: 14px;
             background-color: #007BFF;
             color: white;
             cursor: pointer;
         }
-        button:hover {
+        .user-button:hover {
             background-color: #0056b3;
         }
         table {
@@ -67,8 +66,10 @@
         }
 
         /* added separately */
-        th:last-child, td:last-child {
-            width: 82px;
+        td:last-child {
+            width: 108px;
+            border: 0px solid #ddd;
+            text-align: center;
         }
 
         tbody tr:nth-child(even) {
@@ -99,6 +100,12 @@
                     <td>{{user.username}}</td>
                     <td>{{user.email}}</td>
                     <td>{{user.role}}</td>
+                    <td>
+                        <form action="{{ url_for('changeRole') }}" method="post">
+                            <input type="hidden" name="id" value="{{ user.id }}">
+                            <button class="user-button" type="submit">Change Role</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
