@@ -154,7 +154,7 @@ def refreshInfo():
             db.session.add(newPricingInfo)
     
     db.session.commit()
-    print("Refreshed information in the database")
+    flash(f'Refreshed information for {store.store_name}', 'success')
     return redirect('/admin/refresh')
 
 @app.route('/admin/reports')
