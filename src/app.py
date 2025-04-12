@@ -188,6 +188,7 @@ def changeRole():
     user = User.query.get(id)
     user.role = "user" if user.role == "admin" else "admin"
     db.session.commit()
+    flash(f'Changed role for {user.username} to {user.role}', 'success')
     return redirect(url_for('displayUsers'))
 
 @app.route('/register', methods=['GET', 'POST'])

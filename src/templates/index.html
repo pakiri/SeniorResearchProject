@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 </head>
 
-<body class="bg-light">
+<body class="d-flex flex-column min-vh-100">
 
     <!-- <div class="container py-4"> -->
 
@@ -181,6 +181,11 @@
         {% endif %}
     </div>
     {% endif %}
+    <footer class="bg-primary text-white text-center py-3 mt-auto">
+        <div class="container">
+            <small>&copy; {{ current_year }} GroceryCheck. All rights reserved.</small>
+        </div>
+    </footer>
 
     <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
