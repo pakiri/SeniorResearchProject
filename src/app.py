@@ -83,7 +83,7 @@ def searchZipCode():
     item_name = request.form.get("user_itemName") or request.args.get("itemName")
     store_id = request.form.get("user_store") or request.args.get("store_id")
     page = request.args.get("page", 1, type=int)
-    per_page = 9  
+    per_page = 9
     query = PricingInfo.query
     if user_zipcode:
         if len(user_zipcode) != 5 and user_zipcode.isnumeric():

@@ -4,7 +4,7 @@
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -70,6 +70,12 @@
             </p>
         </div>
     </div>
+    <footer class="bg-primary text-white text-center py-3 mt-auto">
+        <div class="container">
+            <small>&copy; {{ current_year }} GroceryCheck. All rights reserved.</small>
+        </div>
+    </footer>
+
     <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>
