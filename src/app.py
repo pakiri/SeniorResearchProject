@@ -72,6 +72,15 @@ class User(db.Model):
     password = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(5), nullable=False)
 
+class Refreshes(db.Model):
+    __tablename__ = "Refreshes"
+    refresh_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    store_id = db.Column(db.Integer, db.ForeignKey('Stores.store_id'))
+    timestamp = db.Column(db.String(150), nullable=False)
+    user = relationship('User', backref='refresh')
+    store = relationship('Stores', backref='refresh')
+
 # displayed on the home page
 @app.route('/')
 def index():
@@ -114,7 +123,8 @@ def adminPage():
 def refresh():
     # from models.stores import Stores
     stores = Stores.query.all()
-    return render_template('refreshList.html', stores=stores)
+    refreshes = Refreshes.query.order_by(Refreshes.refresh_id.desc()).all() # query refreshes in descending order
+    return render_template('refreshList.html', stores=stores, refreshes=refreshes)
 
 @app.route('/admin/refreshInfo', methods=['POST'])
 def refreshInfo():
@@ -153,6 +163,9 @@ def refreshInfo():
             
             db.session.add(newPricingInfo)
     
+    refresh = Refreshes(user_id=session['GCuser_id'], store_id=store_id, timestamp=datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"))
+    db.session.add(refresh)
+
     db.session.commit()
     flash(f'Refreshed information for {store.store_name}', 'success')
     return redirect('/admin/refresh')

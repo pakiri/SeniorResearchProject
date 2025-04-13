@@ -52,6 +52,12 @@
             background-color: #0056b3;
         }
     </style> -->
+    <style>
+        .custom-header th {
+            background-color: #3478f6 !important;
+            color: white !important;
+        }
+    </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 </head>
 
@@ -125,9 +131,9 @@
         </div>
     </nav>
 
-    <h1 class="text-center">Select a Store</h1>
+    <!-- <h1 class="text-center">Select a Store</h1> -->
 
-    <div class="container">
+    <!-- <div class="container">
         <form action="/admin/refreshInfo" method="POST">
             <select name="user_store" class="form-select">
                 {% for store in stores %}
@@ -137,6 +143,52 @@
             <br>
             <button type="submit" class="btn btn-primary">Refresh</button>
         </form>
+    </div> -->
+
+    <div class="container my-4">
+        <div class="card shadow-sm mx-auto w-75 px-4 py-4">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4 fw-semibold">Select a Store</h3>
+                <form action="/admin/refreshInfo" method="POST">
+                    <div class="mb-3">
+                        <label for="user_store" class="form-label">Store</label>
+                        <select name="user_store" id="user_store" class="form-select">
+                            {% for store in stores %}
+                                <option value="{{ store.store_id }}">{{ store.store_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary px-4">Refresh</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3 class="text-center">Latest Refreshes</h3>
+        
+        <table class="table table-striped my-3">
+            <thead class="custom-header">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Store</th>
+                    <th scope="col">Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for refresh in refreshes %}
+                <tr>
+                    <th scope="row">{{refresh.refresh_id}}</td>
+                    <td>{{refresh.user.username}}</td>
+                    <td>{{refresh.store.store_name}}</td>
+                    <td>{{refresh.timestamp}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     <footer class="bg-primary text-white text-center py-3 mt-auto">
         <div class="container">
