@@ -134,6 +134,48 @@
                             <strong>Price:</strong>
                             ${{'%0.2f' % item.price }}
                         </p>
+
+                        {% if session['GCuser_id'] %}
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#alertModal"
+                            data-bs-item_name="{{ item.item_name }}" data-bs-zipcode="{{ zipcode.zipcode }}" data-bs-price="{{'%0.2f' % item.price}}"
+                            data-bs-store_id="{{ item.store_id }}" data-bs-store_name="{{ item.store.store_name }}">Add alert
+                        </button>
+                        
+                        <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="alertModalLabel">New message</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="mb-3">
+                                                <label for="item-name" class="col-form-label">Item:</label>
+                                                <input type="text" class="form-control" id="item-name">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="store-name" class="col-form-label">Store:</label>
+                                                <input type="text" class="form-control" id="store-name">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="zip-code" class="col-form-label">Zip Code:</label>
+                                                <input type="text" class="form-control" id="zip-code">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="price-threshold" class="col-form-label">Price Threshold:</label>
+                                                <input type="text" class="form-control" id="price-threshold">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary">Create alert</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -189,6 +231,30 @@
             <small>&copy; 2025 GroceryCheck. All rights reserved.</small>
         </div>
     </footer>
+
+    <script>
+        var alertModal = document.getElementById('alertModal')
+        alertModal.addEventListener('show.bs.modal', function (event) {
+            // button that triggered the modal
+            var button = event.relatedTarget
+            // extract info from data-bs-* attributes
+            var itemName = button.getAttribute('data-bs-item_name')
+            var zipcode = button.getAttribute('data-bs-zipcode')
+            var price = button.getAttribute('data-bs-price')
+            var storeId = button.getAttribute('data-bs-store_id')
+            var storeName = button.getAttribute('data-bs-store_name')
+
+            // update the modal's content
+            var modalTitle = alertModal.querySelector('.modal-title')
+            var modalBodyInput = alertModal.querySelectorAll('.modal-body input')
+
+            modalTitle.textContent = 'New alert for ' + itemName
+            modalBodyInput[0].value = itemName
+            modalBodyInput[1].value = storeName
+            modalBodyInput[2].value = zipcode
+            modalBodyInput[3].value = price
+        })
+    </script>
 
     <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 </body>
