@@ -18,10 +18,9 @@ class Stores(Base):
     __tablename__ = "Stores"
     store_id = Column(Integer, primary_key=True, nullable=False, unique=True)
     store_name = Column(String(20), nullable=False, unique=False)
-    url = Column(String(150), nullable=False, unique=True)
 
     def __repr__(self):
-        return f"Store Name : {self.store_name}, URL: {self.url}"
+        return f"Store Name : {self.store_name}"
 
 class PricingInfo(Base):
     __tablename__ = "Pricing_Info"
@@ -44,7 +43,7 @@ engine = create_engine('sqlite:///instance/SRdata.db')
 Session = sessionmaker(bind=engine)
 
 with Session() as session:
-    for store_id in range(1, 7): # currently 6 stores in the Stores data table
+    for store_id in range(1, 20): # currently 19 stores in the Stores data table
         store = session.get(Stores, store_id)
 
         # 2. data extraction from JSON
