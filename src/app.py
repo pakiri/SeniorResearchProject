@@ -81,10 +81,26 @@ class Refreshes(db.Model):
     user = relationship('User', backref='refresh')
     store = relationship('Stores', backref='refresh')
 
+class Alerts(db.Model):
+    __tablename__ = "Alerts"
+    alert_id = db.Column(db.Integer, primary_key=True)
+    item_name = db.Column(db.String(50), unique=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    store_id = db.Column(db.Integer, db.ForeignKey('Stores.store_id'))
+    zipcode = db.Column(db.String(5), unique=False)
+    price_threshold = db.Column(db.Float, unique=False)
+    timestamp = db.Column(db.String(150), nullable=False)
+    user = relationship('User', backref='alert')
+    store = relationship('Stores', backref='alert')
+
 # displayed on the home page
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/test')
+def test():
+    return render_template('test.html')
 
 @app.route('/zipcode', methods=['GET', 'POST'])
 def searchZipCode():
@@ -203,6 +219,11 @@ def changeRole():
     db.session.commit()
     flash(f'Changed role for {user.username} to {user.role}', 'success')
     return redirect(url_for('displayUsers'))
+
+@app.route('/alerts')
+def displayAlerts():
+    alerts = Alerts.query.all()
+    return render_template('alerts.html', alerts=alerts)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
