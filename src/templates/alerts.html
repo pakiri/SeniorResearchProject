@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alerts</title>
+    <title>My Alerts</title>
     <!-- <style>
         body {
             font-family: Arial, sans-serif;
@@ -139,6 +139,10 @@
                         {% endif %}
                     
                     <li class="nav-item">
+                        <a class="nav-link text-white fw-bold" href="{{ url_for('displayAlerts') }}">My Alerts</a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link text-white fw-bold" href="{{ url_for('logout') }}">Logout</a>
                     </li>
                     {% else %}
@@ -155,7 +159,7 @@
         </div>
     </nav>
 
-    <h1 class="text-center">Alerts</h1>
+    <h1 class="text-center">My Alerts</h1>
     <br/>
 
     <div class="container">
@@ -172,6 +176,7 @@
             </thead>
             <tbody>
                 {% for alert in alerts %}
+                {% if alert.user_id == session['GCuser_id'] %}
                 <tr>
                     <td>{{alert.item_name}}</td>
                     <td>{{alert.user.username}}</td>
@@ -180,6 +185,7 @@
                     <td>{{alert.price_threshold}}</td>
                     <td>{{alert.timestamp}}</th>
                 </tr>
+                {% endif %}
                 {% endfor %}
             </tbody>
         </table>

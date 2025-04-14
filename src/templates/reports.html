@@ -140,6 +140,10 @@
                         {% endif %}
                     
                     <li class="nav-item">
+                        <a class="nav-link text-white fw-bold" href="{{ url_for('displayAlerts') }}">My Alerts</a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link text-white fw-bold" href="{{ url_for('logout') }}">Logout</a>
                     </li>
                     {% else %}

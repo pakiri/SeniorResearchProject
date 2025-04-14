@@ -115,6 +115,10 @@
                         {% endif %}
                     
                     <li class="nav-item">
+                        <a class="nav-link text-white fw-bold" href="{{ url_for('displayAlerts') }}">My Alerts</a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link text-white fw-bold" href="{{ url_for('logout') }}">Logout</a>
                     </li>
                     {% else %}
@@ -151,7 +155,7 @@
                 <h3 class="card-title text-center mb-4 fw-semibold">Select a Store</h3>
                 <form action="/admin/refreshInfo" method="POST">
                     <div class="mb-3">
-                        <label for="user_store" class="form-label">Store</label>
+                        <label for="user_store" class="form-label">Store:</label>
                         <select name="user_store" id="user_store" class="form-select">
                             {% for store in stores %}
                                 <option value="{{ store.store_id }}">{{ store.store_name }}</option>
