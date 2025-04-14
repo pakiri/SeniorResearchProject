@@ -41,10 +41,9 @@ class Stores(db.Model):
     __tablename__ = "Stores"
     store_id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     store_name = db.Column(db.String(20), nullable=False, unique=False)
-    url = db.Column(db.String(150), nullable=False, unique=True)
 
     def __repr__(self):
-        return f"Store Name : {self.store_name}, URL: {self.url}"
+        return f"Store Name : {self.store_name}"
 
 class PricingInfo(db.Model):
     __tablename__ = "Pricing_Info"
@@ -224,6 +223,21 @@ def changeRole():
 def displayAlerts():
     alerts = Alerts.query.all()
     return render_template('alerts.html', alerts=alerts)
+
+@app.route('/createAlert', methods=['POST'])
+def createAlert():
+    item_name = request.form.get("item-name")
+    zipcode = request.form.get("zip-code")
+    price_threshold = request.form.get("price-threshold")
+
+    # TODO: store_id is currently hardcoded, need to fix it
+    newAlert = Alerts(item_name=item_name, user_id=session['GCuser_id'], store_id=1, zipcode=zipcode, price_threshold=price_threshold, timestamp=datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"))
+    db.session.add(newAlert)
+    db.session.commit()
+    flash(f'Added alert for {item_name}', 'success')
+
+    # TODO: fix what this return statement should be
+    return
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

@@ -65,6 +65,10 @@
                         {% endif %}
                     
                     <li class="nav-item">
+                        <a class="nav-link text-white fw-bold" href="{{ url_for('displayAlerts') }}">My Alerts</a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link text-white fw-bold" href="{{ url_for('logout') }}">Logout</a>
                     </li>
                     {% else %}
@@ -82,7 +86,7 @@
     </nav>
 
     <h1 class="text-center">Welcome to GroceryCheck!</h1>
-    <br/>
+    <br />
 
     <div class="container py-4">
         <div class="card shadow-sm p-4 mb-4">
@@ -100,7 +104,8 @@
                     <select name="user_store" class="form-select">
                         <option value="">All Stores</option>
                         {% for store in stores %}
-                        <option value="{{ store.store_id }}" {% if store.store_id|string == selected_store_id %}selected{% endif %}>
+                        <option value="{{ store.store_id }}" {% if store.store_id|string==selected_store_id %}selected{%
+                            endif %}>
                             {{ store.store_name }}</option>
                         {% endfor %}
                     </select>
@@ -136,41 +141,46 @@
                         </p>
 
                         {% if session['GCuser_id'] %}
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#alertModal"
-                            data-bs-item_name="{{ item.item_name }}" data-bs-zipcode="{{ zipcode.zipcode }}" data-bs-price="{{'%0.2f' % item.price}}"
-                            data-bs-store_id="{{ item.store_id }}" data-bs-store_name="{{ item.store.store_name }}">Add alert
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#alertModal" data-bs-item_name="{{ item.item_name }}"
+                            data-bs-zipcode="{{ zipcode.zipcode }}" data-bs-price="{{'%0.2f' % item.price}}"
+                            data-bs-store_id="{{ item.store_id }}" data-bs-store_name="{{ item.store.store_name }}">Add
+                            alert
                         </button>
-                        
-                        <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+
+                        <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel"
+                            aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="alertModalLabel">New message</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
                                     </div>
-                                    <div class="modal-body">
-                                        <form>
+                                    <form method="POST" action="{{ url_for('createAlert') }}">
+                                        <div class="modal-body">
                                             <div class="mb-3">
                                                 <label for="item-name" class="col-form-label">Item:</label>
-                                                <input type="text" class="form-control" id="item-name">
+                                                <input type="text" class="form-control" name="item-name">
                                             </div>
                                             <div class="mb-3">
                                                 <label for="store-name" class="col-form-label">Store:</label>
-                                                <input type="text" class="form-control" id="store-name">
+                                                <input type="text" class="form-control" name="store-name" readonly>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="zip-code" class="col-form-label">Zip Code:</label>
-                                                <input type="text" class="form-control" id="zip-code">
+                                                <input type="text" class="form-control" name="zip-code">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="price-threshold" class="col-form-label">Price Threshold:</label>
-                                                <input type="text" class="form-control" id="price-threshold">
+                                                <label for="price-threshold" class="col-form-label">Price
+                                                    Threshold:</label>
+                                                <input type="text" class="form-control" name="price-threshold">
                                             </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-primary">Create alert</button>
-                                    </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary">Create alert</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
