@@ -123,6 +123,7 @@ def searchZipCode():
     stores = Stores.query.all()
 
     return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo, itemName=item_name,stores=stores, selected_store_id=str(store_id))
+    # return redirect(url_for('index', zipcode=zipcode, pricingInfo=pricingInfo, itemName=item_name,stores=stores, selected_store_id=str(store_id)))
 
 # main admin page
 @app.route('/admin')
@@ -229,15 +230,16 @@ def createAlert():
     item_name = request.form.get("item-name")
     zipcode = request.form.get("zip-code")
     price_threshold = request.form.get("price-threshold")
+    page = request.form.get("current_page")
+    current_item_name = request.form.get("current_item_name")
+    store_id = request.form.get("store-id")
 
-    # TODO: store_id is currently hardcoded, need to fix it
-    newAlert = Alerts(item_name=item_name, user_id=session['GCuser_id'], store_id=1, zipcode=zipcode, price_threshold=price_threshold, timestamp=datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"))
+    newAlert = Alerts(item_name=item_name, user_id=session['GCuser_id'], store_id=store_id, zipcode=zipcode, price_threshold=price_threshold, timestamp=datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"))
     db.session.add(newAlert)
     db.session.commit()
     flash(f'Added alert for {item_name}', 'success')
 
-    # TODO: fix what this return statement should be
-    return
+    return redirect(url_for('searchZipCode',zipcode=zipcode, page=page, itemName=current_item_name))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

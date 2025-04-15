@@ -158,6 +158,8 @@
                                             aria-label="Close"></button>
                                     </div>
                                     <form method="POST" action="{{ url_for('createAlert') }}">
+                                        <input type="hidden" name="current_item_name" value="{{ itemName }}">
+                                        <input type="hidden" name="current_page" value="{{ pricingInfo.page }}">
                                         <div class="modal-body">
                                             <div class="mb-3">
                                                 <label for="item-name" class="col-form-label">Item:</label>
@@ -165,7 +167,14 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label for="store-name" class="col-form-label">Store:</label>
-                                                <input type="text" class="form-control" name="store-name" readonly>
+                                                <!-- <input type="text" class="form-control" name="store-name" readonly> -->
+                                                <select name="store-id" class="form-select">
+                                                    <option value="">All Stores</option>
+                                                    {% for store in stores %}
+                                                    <option value="{{ store.store_id }}">
+                                                        {{ store.store_name }}</option>
+                                                    {% endfor %}
+                                                </select>
                                             </div>
                                             <div class="mb-3">
                                                 <label for="zip-code" class="col-form-label">Zip Code:</label>
@@ -257,12 +266,14 @@
             // update the modal's content
             var modalTitle = alertModal.querySelector('.modal-title')
             var modalBodyInput = alertModal.querySelectorAll('.modal-body input')
+            // var modalBodySelect = alertModal.querySelectorAll('.modal-body select')
+            // console.log(modalBodySelect[0])
 
             modalTitle.textContent = 'New alert for ' + itemName
             modalBodyInput[0].value = itemName
-            modalBodyInput[1].value = storeName
-            modalBodyInput[2].value = zipcode
-            modalBodyInput[3].value = price
+            // modalBodySelect[0].value = storeName
+            modalBodyInput[1].value = zipcode
+            modalBodyInput[2].value = price
         })
     </script>
 

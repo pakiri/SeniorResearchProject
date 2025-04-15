@@ -167,7 +167,7 @@
             <thead class="custom-header">
                 <tr>
                     <th scope="col">Item Name</th>
-                    <th scope="col">Username</th>
+                    <!-- <th scope="col">Username</th> -->
                     <th scope="col">Store</th>
                     <th scope="col">Zip Code</th>
                     <th scope="col">Price Threshold</th>
@@ -179,10 +179,10 @@
                 {% if alert.user_id == session['GCuser_id'] %}
                 <tr>
                     <td>{{alert.item_name}}</td>
-                    <td>{{alert.user.username}}</td>
+                    <!-- <td>{{alert.user.username}}</td> -->
                     <td>{{alert.store.store_name}}</td>
                     <td>{{alert.zipcode}}</td>
-                    <td>{{alert.price_threshold}}</td>
+                    <td>{{'%0.2f' % alert.price_threshold}}</td>
                     <td>{{alert.timestamp}}</th>
                 </tr>
                 {% endif %}
