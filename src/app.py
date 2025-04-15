@@ -295,7 +295,7 @@ def logout():
     session.pop('GCuser_id', None)
     session.pop('GCusername', None)
     session.pop('GCuser_role', None)
-    flash('You have been logged out.', 'info')
+    flash('You have been logged out.', 'success')
     return redirect(url_for('index'))
 
 with app.app_context():
