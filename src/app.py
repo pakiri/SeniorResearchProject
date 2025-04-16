@@ -261,6 +261,85 @@ def register():
         newUser = User(username=username, email=email, password=hashedPassword, role="user")
         db.session.add(newUser)
         db.session.commit()
+
+        from emailsender import sendEmail
+        htmlContent = f"""\
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Welcome to GroceryCheck</title>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        background-color: #f8f9fa;
+                        margin: 0;
+                        padding: 0;
+                    }}
+                    .container {{
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background: #ffffff;
+                        padding: 20px;
+                        border-radius: 10px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        text-align: center;
+                    }}
+                    h1 {{
+                        color: #2c3e50;
+                    }}
+                    .content {{
+                        text-align: left;
+                        font-size: 16px;
+                        color: #333;
+                    }}
+                    .cta-button {{
+                        display: inline-block;
+                        margin: 20px 0;
+                        padding: 12px 20px;
+                        background-color: #0d6efd;
+                        color: #ffffff !important;
+                        text-decoration: none;
+                        font-size: 18px;
+                        border-radius: 5px;
+                        border: none;
+                        cursor: pointer;
+                    }}
+                    .cta-button:hover {{
+                        background-color: #218838;
+                    }}
+                    .footer {{
+                        font-size: 14px;
+                        color: #777;
+                        margin-top: 20px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>Welcome to GroceryCheck! 🎉</h1>
+                    <div class="content">
+                        <p>Hi { username },</p>
+                        <p>We're excited to help you find the best grocery deals and make shopping easier than ever.</p>
+                        <p>With GroceryCheck, you can:</p>
+                        <ul>
+                            <li> Compare weekly ads from top stores</li>
+                            <li> Search a variety of grocery products at numerous locations</li>
+                            <li> Download weekly USDA-styled retail reports</li>
+                        </ul>
+                        <p><a href="http://localhost:5000/" class="cta-button">Get Started</a></p>
+                        <!-- <p>Need help? Visit our <a href="https://google.com">Help Center</a>.</p> -->
+                    </div>
+                    <div class="footer">
+                        <p>Happy shopping!<br><strong>The GroceryCheck Team</strong></p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+        sendEmail(username, email, f"Welcome to GroceryCheck, {username}!", htmlContent)  # send welcome email (usually goes to spam folder)
+
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
     return render_template('register.html')
