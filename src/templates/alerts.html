@@ -81,6 +81,9 @@
             background-color: #3478f6 !important;
             color: white !important;
         }
+        td:last-child { /* not working */
+            background-color: white;
+        }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 </head>
@@ -184,6 +187,12 @@
                     <td>{{alert.zipcode}}</td>
                     <td>{{'%0.2f' % alert.price_threshold}}</td>
                     <td>{{alert.timestamp}}</th>
+                    <td>
+                        <form action="{{ url_for('deleteAlert') }}" method="post">
+                            <input type="hidden" name="alert_id" value="{{ alert.alert_id }}">
+                            <button class="btn btn-danger" type="submit">Delete</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endif %}
                 {% endfor %}

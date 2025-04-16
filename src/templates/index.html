@@ -169,7 +169,7 @@
                                                 <label for="store-name" class="col-form-label">Store:</label>
                                                 <!-- <input type="text" class="form-control" name="store-name" readonly> -->
                                                 <select name="store-id" class="form-select">
-                                                    <option value="">All Stores</option>
+                                                    <!-- <option value="">All Stores</option> -->
                                                     {% for store in stores %}
                                                     <option value="{{ store.store_id }}">
                                                         {{ store.store_name }}</option>

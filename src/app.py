@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import requests
 import re
+from emailsender import sendEmail
 
 USER_ZIPCODE = "22312"
 
@@ -196,9 +197,9 @@ def download():
     pricingInfo = PricingInfo.query.all()
 
     # store princingInfo data in a CSV string
-    csv_data = "ID,Product ID,Item Name,Store ID,Zip Code,Price,Date of Creation\n"
+    csv_data = "Item Name,Store,Zip Code,Price\n"
     for item in pricingInfo:
-        csv_data += f"{item.id},{item.product_id},{item.item_name.replace(",", "")},{item.store_id},{item.zipcode},{'%0.2f' % item.price},{item.created_date}\n"
+        csv_data += f"{item.item_name.replace(",", "")},{item.store.store_name},{item.zipcode},{'%0.2f' % item.price}\n"
     
     # create a direct download response with the CSV data and appropriate headers
     response = Response(csv_data, content_type="text/csv")
@@ -238,8 +239,19 @@ def createAlert():
     db.session.add(newAlert)
     db.session.commit()
     flash(f'Added alert for {item_name}', 'success')
+    return redirect(url_for('searchZipCode',zipcode=zipcode, page=page, itemName=current_item_name)) if current_item_name != "None" else redirect(url_for('searchZipCode',zipcode=zipcode, page=page))
 
-    return redirect(url_for('searchZipCode',zipcode=zipcode, page=page, itemName=current_item_name))
+@app.route('/deleteAlert', methods=['POST'])
+def deleteAlert():
+    alert_id = request.form.get("alert_id")
+    alert = Alerts.query.get(alert_id)
+    item_name = alert.item_name
+
+    Alerts.query.filter_by(alert_id=alert_id).delete()
+    db.session.commit()
+
+    flash(f'Deleted alert for {item_name}', 'success')
+    return redirect(url_for('displayAlerts'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -262,7 +274,6 @@ def register():
         db.session.add(newUser)
         db.session.commit()
 
-        from emailsender import sendEmail
         htmlContent = f"""\
             <!DOCTYPE html>
             <html>
