@@ -112,7 +112,7 @@ def searchZipCode():
     query = PricingInfo.query
     if user_zipcode:
         if len(user_zipcode) != 5 and user_zipcode.isnumeric():
-            flash('Invalid Zip Code', 'danger')
+            flash('Invalid zip code', 'danger')
             return redirect('/')
         query = query.filter(PricingInfo.zipcode == user_zipcode)
     if item_name and item_name != "None":
@@ -337,7 +337,7 @@ def register():
                         <ul>
                             <li> Compare weekly ads from top stores</li>
                             <li> Search a variety of grocery products at numerous locations</li>
-                            <li> Download weekly USDA-styled retail reports</li>
+                            <li> Download weekly grocery retail reports</li>
                         </ul>
                         <p><a href="http://localhost:5000/" class="cta-button">Get Started</a></p>
                         <!-- <p>Need help? Visit our <a href="https://google.com">Help Center</a>.</p> -->
@@ -369,9 +369,110 @@ def login():
             flash('Login successful!', 'success')
             return redirect(url_for('index'))
         else:
-            flash('Invalid username or password.', 'danger')
+            flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
     return render_template('login.html')
+
+@app.route('/forgotPassword', methods=['POST'])
+def forgotPassword():
+    # check if user with email exists
+    email = request.form.get("email-address")
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash('User with this email does not exist. Please enter a different email.', 'danger')
+        return redirect(url_for('login'))
+
+    # create and save new password
+    newPassword = "gC999$2o25"
+    user.password = generate_password_hash(newPassword, method='pbkdf2:sha256')
+    db.session.commit()
+
+    # send email with new password
+    username = user.username
+    htmlContent = f"""\
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Password Reset - GroceryCheck</title>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    background-color: #f8f9fa;
+                    margin: 0;
+                    padding: 0;
+                }}
+                .container {{
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background: #ffffff;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    text-align: center;
+                }}
+                h1 {{
+                    color: #2c3e50;
+                }}
+                .content {{
+                    text-align: left;
+                    font-size: 16px;
+                    color: #333;
+                }}
+                .password-box {{
+                    background-color: #f1f1f1;
+                    padding: 10px;
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #000;
+                    border-radius: 5px;
+                    text-align: center;
+                    margin: 20px 0;
+                }}
+                .cta-button {{
+                    display: inline-block;
+                    margin: 20px 0;
+                    padding: 12px 20px;
+                    background-color: #0d6efd;
+                    color: #ffffff !important;
+                    text-decoration: none;
+                    font-size: 18px;
+                    border-radius: 5px;
+                    border: none;
+                    cursor: pointer;
+                }}
+                .cta-button:hover {{
+                    background-color: #218838;
+                }}
+                .footer {{
+                    font-size: 14px;
+                    color: #777;
+                    margin-top: 20px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Password Reset Successful</h1>
+                <div class="content">
+                    <p>Hi { username },</p>
+                    <p>You recently requested to reset your password. Here's your new password:</p>
+                    <div class="password-box">{ newPassword }</div>
+                    <p>Use the button below to log back into your account:</p>
+                    <p><a href="http://localhost:5000/login" class="cta-button">Log In</a></p>
+                    <p>If you didn't request this change, please contact us immediately.</p>
+                </div>
+                <div class="footer">
+                    <p>Stay secure!<br><strong>The GroceryCheck Team</strong></p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+    sendEmail(username, email, f"Your New GroceryCheck Password", htmlContent)
+    flash(f'An email containing your new password was sent to {email}. Please check your inbox and log in.', 'success')
+    return redirect(url_for('login'))
 
 @app.route('/dashboard')
 def dashboard():

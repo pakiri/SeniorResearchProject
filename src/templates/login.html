@@ -92,9 +92,33 @@
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
-            <p class="text-center mt-3 mb-0">Don't have an account? 
-              <a href="{{ url_for('register') }}">Sign up here</a>
-            </p>
+            <p class="text-center mt-3 mb-0">Don't have an account? <a href="{{ url_for('register') }}">Sign up here</a></p>
+            <p class="text-center mt-3 mb-0"><a href="{{ url_for('forgotPassword') }}" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot your password?</a></p>
+
+            <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="forgotPasswordModalLabel">Please provide an email address to send your new password to</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ url_for('forgotPassword') }}">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="email-address" class="col-form-label">Email Address:</label>
+                                    <input type="email" class="form-control" name="email-address">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Send email</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
     <footer class="bg-primary text-white text-center py-3 mt-auto">
