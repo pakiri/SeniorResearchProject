@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, Response, flash, render_template, url_for, session
+from flask import Flask, request, redirect, flash, render_template, url_for, session, send_file
 from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
@@ -8,6 +8,8 @@ from datetime import datetime
 import requests
 import re
 from emailsender import sendEmail
+from io import BytesIO
+from pdfGenerator import generate_pdf_from_data
 
 USER_ZIPCODE = "22312"
 
@@ -182,8 +184,98 @@ def refreshInfo():
     
     refresh = Refreshes(user_id=session['GCuser_id'], store_id=store_id, timestamp=datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"))
     db.session.add(refresh)
-
     db.session.commit()
+
+    alerts = Alerts.query.all()
+    for alert in alerts:
+        searchTerm, priceThreshold = alert.item_name, alert.price_threshold
+        entries = PricingInfo.query.filter_by(store_id=alert.store.store_id, zipcode=alert.zipcode)
+        for entry in entries:
+            if searchTerm in entry.item_name and (currentPrice := entry.price) < priceThreshold:
+                username = alert.user.username
+                print(f"Sending email to {username}")
+                htmlContent = f"""\
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Price Alert - GroceryCheck</title>
+                        <style>
+                            body {{
+                                font-family: Arial, sans-serif;
+                                background-color: #f8f9fa;
+                                margin: 0;
+                                padding: 0;
+                            }}
+                            .container {{
+                                max-width: 600px;
+                                margin: 20px auto;
+                                background: #ffffff;
+                                padding: 20px;
+                                border-radius: 10px;
+                                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                text-align: center;
+                            }}
+                            h1 {{
+                                color: #2c3e50;
+                            }}
+                            .content {{
+                                text-align: left;
+                                font-size: 16px;
+                                color: #333;
+                            }}
+                            .highlight {{
+                                font-weight: bold;
+                                color: #0d6efd;
+                            }}
+                            .cta-button {{
+                                display: inline-block;
+                                margin: 20px 0;
+                                padding: 12px 20px;
+                                background-color: #0d6efd;
+                                color: #ffffff !important;
+                                text-decoration: none;
+                                font-size: 18px;
+                                border-radius: 5px;
+                                border: none;
+                                cursor: pointer;
+                            }}
+                            .cta-button:hover {{
+                                background-color: #218838;
+                            }}
+                            .footer {{
+                                font-size: 14px;
+                                color: #777;
+                                margin-top: 20px;
+                            }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h1>🚨 Price Alert Triggered!</h1>
+                            <div class="content">
+                                <p>Hi { username },</p>
+                                <p>Great news! One of your GroceryCheck alerts just triggered:</p>
+                                <ul>
+                                    <li><strong>Item:</strong> <span class="highlight">{ alert.item_name }</span></li>
+                                    <li><strong>Store:</strong> <span class="highlight">{ alert.store.store_name }</span></li>
+                                    <li><strong>ZIP Code:</strong> <span class="highlight">{ alert.zipcode }</span></li>
+                                    <li><strong>Your Price Threshold:</strong> <span class="highlight">${ '%0.2f' % priceThreshold }</span></li>
+                                    <li><strong>Current Price:</strong> <span class="highlight">${ '%0.2f' % currentPrice }</span></li>
+                                </ul>
+                                <p>Click below to view the latest deal and see more details:</p>
+                                <p><a href="http://localhost:5000/alerts" class="cta-button">View My Alerts</a></p>
+                            </div>
+                            <div class="footer">
+                                <p>Happy saving!<br><strong>The GroceryCheck Team</strong></p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                    """
+                sendEmail(username, alert.user.email, f"Deal found! {alert.item_name} at {alert.store.store_name} is below your price threshold!", htmlContent)
+
     flash(f'Refreshed information for {store.store_name}', 'success')
     return redirect('/admin/refresh')
 
@@ -194,18 +286,19 @@ def displayReports():
 
 @app.route('/admin/download')
 def download():
-    pricingInfo = PricingInfo.query.all()
+    results = PricingInfo.query.join(PricingInfo.store).with_entities(
+        PricingInfo.item_name,
+        Stores.store_name,
+        PricingInfo.zipcode,
+        PricingInfo.price
+    ).all()
+    results = [(item, storeName, zipcode, '%0.2f' % price) for item, storeName, zipcode, price in results]
+    columns = ['Item Name', 'Store', 'ZIP Code', 'Price']
 
-    # store princingInfo data in a CSV string
-    csv_data = "Item Name,Store,Zip Code,Price\n"
-    for item in pricingInfo:
-        csv_data += f"{item.item_name.replace(",", "")},{item.store.store_name},{item.zipcode},{'%0.2f' % item.price}\n"
-    
-    # create a direct download response with the CSV data and appropriate headers
-    response = Response(csv_data, content_type="text/csv")
-    response.headers["Content-Disposition"] = "attachment; filename=priceInfo.csv"
-
-    return response
+    buffer = BytesIO()
+    generate_pdf_from_data(results, columns, buffer)
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name='sample_report.pdf', mimetype='application/pdf')
 
 @app.route('/admin/users')
 def displayUsers():
