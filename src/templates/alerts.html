@@ -81,9 +81,6 @@
             background-color: #3478f6 !important;
             color: white !important;
         }
-        td:last-child { /* not working */
-            background-color: white;
-        }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
 </head>
@@ -175,6 +172,7 @@
                     <th scope="col">Zip Code</th>
                     <th scope="col">Price Threshold</th>
                     <th scope="col">Timestamp</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
