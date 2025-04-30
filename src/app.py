@@ -19,6 +19,24 @@ categories = [r"\bapples?\b(?!\s*sauce)",
               r"oranges",
               r"tomato(?! )"]
 
+states = {
+        "AL": "Alabama", "AK": "Alaska", "AS": "American Samoa", "AZ": "Arizona",
+        "AR": "Arkansas", "CA": "California", "CO": "Colorado", "CT": "Connecticut",
+        "DE": "Delaware", "DC": "District of Columbia", "FM": "Federated States of Micronesia", "FL": "Florida",
+        "GA": "Georgia", "GU": "Guam", "HI": "Hawaii", "ID": "Idaho",
+        "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
+        "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
+        "MH": "Marshall Islands", "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota",
+        "MS": "Mississippi", "MO": "Missouri", "MT": "Montana", "NE": "Nebraska",
+        "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico",
+        "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "MP": "Northern Mariana Islands",
+        "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon", "PW": "Palau",
+        "PA": "Pennsylvania", "PR": "Puerto Rico", "RI": "Rhode Island", "SC": "South Carolina",
+        "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
+        "VT": "Vermont", "VI": "Virgin Islands", "VA": "Virginia", "WA": "Washington",
+        "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming"
+    }
+
 app = Flask(__name__) # creates a new Flask app
 
 # link the database to the Flask app's config
@@ -98,7 +116,7 @@ class Alerts(db.Model):
 # displayed on the home page
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', states=states)
 
 @app.route('/test')
 def test():
@@ -109,6 +127,7 @@ def searchZipCode():
     user_zipcode = request.form.get("user_zipcode") or request.args.get("zipcode")
     item_name = request.form.get("user_itemName") or request.args.get("itemName")
     store_id = request.form.get("user_store") or request.args.get("store_id")
+    user_state = request.form.get("user_state")
     page = request.args.get("page", 1, type=int)
     per_page = 9
     query = PricingInfo.query
@@ -124,8 +143,8 @@ def searchZipCode():
     pricingInfo = query.paginate(page=page, per_page=per_page)
     zipcode = ZipCode.query.get(user_zipcode) if user_zipcode else None
     stores = Stores.query.all()
-
-    return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo, itemName=item_name,stores=stores, selected_store_id=str(store_id))
+    
+    return render_template('index.html', zipcode=zipcode, pricingInfo=pricingInfo, itemName=item_name,stores=stores, selected_store_id=str(store_id), user_state=user_state, states=states)
     # return redirect(url_for('index', zipcode=zipcode, pricingInfo=pricingInfo, itemName=item_name,stores=stores, selected_store_id=str(store_id)))
 
 # main admin page

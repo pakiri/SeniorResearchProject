@@ -110,6 +110,15 @@
                         {% endfor %}
                     </select>
                 </div>
+                <div class="col-md-4">
+                    <select name="user_state" class="form-select" id="stateSelect">
+                        {% for state in states %}
+                        <option value="{{ state }}" {% if state|string==user_state %}selected{%
+                            endif %}>
+                            {{ states[state] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 <div class="col-12 text-end">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
@@ -121,7 +130,12 @@
     <div class="px-4 mb-4">
         <h5 class="mb-4">Showing results for: <strong>{{ zipcode.zipcode }}</strong> — {{ zipcode.city }}, {{
             zipcode.state }}</h5>
-        {% if pricingInfo.items|length == 0 %}
+        {% if zipcode.state != user_state %}
+        <div class="alert alert-danger text-center" role="alert">
+            <p>{{user_state}}</p>
+            ZIP code not located in {{ states[user_state] }}. Please enter {{ states[zipcode.state] }} instead.
+        </div>
+        {% elif pricingInfo.items|length == 0 %}
         <div class="alert alert-warning text-center" role="alert">
             No matching products found.
         </div>
@@ -208,7 +222,7 @@
                 {% if pricingInfo.has_prev %}
                 <li class="page-item">
                     <a class="page-link"
-                        href="{{ url_for('searchZipCode', page=pricingInfo.prev_num, zipcode=zipcode.zipcode,itemName=itemName,store_id=selected_store_id) }}">&laquo;
+                        href="{{ url_for('searchZipCode', page=pricingInfo.prev_num, zipcode=zipcode.zipcode,itemName=itemName,store_id=selected_store_id, user_state=user_state) }}">&laquo;
                         Previous</a>
                 </li>
                 {% else %}
@@ -222,7 +236,7 @@
                 {% else %}
                 <li class="page-item">
                     <a class="page-link"
-                        href="{{ url_for('searchZipCode', page=page_num, zipcode=zipcode.zipcode, itemName=itemName,store_id=selected_store_id) }}">{{
+                        href="{{ url_for('searchZipCode', page=page_num, zipcode=zipcode.zipcode, itemName=itemName,store_id=selected_store_id, user_state=user_state) }}">{{
                         page_num }}</a>
                 </li>
                 {% endif %}
@@ -234,7 +248,7 @@
                 {% if pricingInfo.has_next %}
                 <li class="page-item">
                     <a class="page-link"
-                        href="{{ url_for('searchZipCode', page=pricingInfo.next_num, zipcode=zipcode.zipcode,itemName=itemName,store_id=selected_store_id) }}">Next
+                        href="{{ url_for('searchZipCode', page=pricingInfo.next_num, zipcode=zipcode.zipcode,itemName=itemName,store_id=selected_store_id, user_state=user_state) }}">Next
                         &raquo;</a>
                 </li>
                 {% else %}
