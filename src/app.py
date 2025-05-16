@@ -116,7 +116,7 @@ class Alerts(db.Model):
 # displayed on the home page
 @app.route('/')
 def index():
-    return render_template('index.html', states=states)
+    return render_template('index.html', stores=Stores.query.all(), states=states)
 
 @app.route('/test')
 def test():
@@ -127,7 +127,7 @@ def searchZipCode():
     user_zipcode = request.form.get("user_zipcode") or request.args.get("zipcode")
     item_name = request.form.get("user_itemName") or request.args.get("itemName")
     store_id = request.form.get("user_store") or request.args.get("store_id")
-    user_state = request.form.get("user_state")
+    user_state = request.form.get("user_state") or request.args.get("user_state")
     page = request.args.get("page", 1, type=int)
     per_page = 9
     query = PricingInfo.query
@@ -140,6 +140,12 @@ def searchZipCode():
         query = query.filter(PricingInfo.item_name.ilike(f"%{item_name}%"))
     if store_id and store_id != "None":
         query = query.filter(PricingInfo.store_id == store_id)
+    
+    if user_state and not user_zipcode:
+        zipcode_user_state = ZipCode.query.filter(ZipCode.state == user_state).all()
+        zipcodes = [zipcode.zipcode for zipcode in zipcode_user_state]
+        query = query.filter(PricingInfo.zipcode.in_(zipcodes))
+        
     pricingInfo = query.paginate(page=page, per_page=per_page)
     zipcode = ZipCode.query.get(user_zipcode) if user_zipcode else None
     stores = Stores.query.all()

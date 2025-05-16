@@ -93,7 +93,7 @@
             <h5 class="mb-3">Search for Items</h5>
             <form action="/zipcode" method="POST" class="row g-3">
                 <div class="col-md-4">
-                    <input name="user_zipcode" type="text" class="form-control" placeholder="Zip Code"
+                    <input name="user_zipcode" type="text" class="form-control" placeholder="ZIP Code"
                         autocomplete="off" value="{{ zipcode.zipcode if zipcode else '' }}" />
                 </div>
                 <div class="col-md-4">
@@ -126,13 +126,12 @@
         </div>
     </div>
 
-    {% if zipcode %}
+    {% if zipcode %} <!-- if a zipcode is entered -->
     <div class="px-4 mb-4">
         <h5 class="mb-4">Showing results for: <strong>{{ zipcode.zipcode }}</strong> — {{ zipcode.city }}, {{
             zipcode.state }}</h5>
         {% if zipcode.state != user_state %}
         <div class="alert alert-danger text-center" role="alert">
-            <p>{{user_state}}</p>
             ZIP code not located in {{ states[user_state] }}. Please enter {{ states[zipcode.state] }} instead.
         </div>
         {% elif pricingInfo.items|length == 0 %}
@@ -149,10 +148,11 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ item.item_name }}</h5>
                         <p class="card-text mb-1"><strong>Store:</strong> {{ item.store.store_name }}</p>
-                        <p class="card-text">
+                        <p class="card-text mb-1">
                             <strong>Price:</strong>
                             ${{'%0.2f' % item.price }}
                         </p>
+                        <p class="card-text"><strong>ZIP Code:</strong> {{ item.zipcode }}</p>
 
                         {% if session['GCuser_id'] %}
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
@@ -191,7 +191,7 @@
                                                 </select>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="zip-code" class="col-form-label">Zip Code</label>
+                                                <label for="zip-code" class="col-form-label">ZIP Code</label>
                                                 <input type="text" class="form-control" name="zip-code">
                                             </div>
                                             <div class="mb-3">
@@ -258,6 +258,135 @@
         </nav>
         {% endif %}
     </div>
+
+    {% elif user_state %} <!-- if a zipcode is not entered -->
+    <div class="px-4 mb-4">
+        <h5 class="mb-4">Showing results for: <strong>{{ states[user_state] }}</strong></h5>
+        {% if pricingInfo.items|length == 0 %}
+        <div class="alert alert-warning text-center" role="alert">
+            No matching products found.
+        </div>
+        {% else %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            {% for item in pricingInfo.items %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.item_name }}"
+                        style="height: 180px; object-fit: contain;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ item.item_name }}</h5>
+                        <p class="card-text mb-1"><strong>Store:</strong> {{ item.store.store_name }}</p>
+                        <p class="card-text mb-1">
+                            <strong>Price:</strong>
+                            ${{'%0.2f' % item.price }}
+                        </p>
+                        <p class="card-text"><strong>ZIP Code:</strong> {{ item.zipcode }}</p>
+
+                        {% if session['GCuser_id'] %}
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#alertModal" data-bs-item_name="{{ item.item_name }}"
+                            data-bs-zipcode="{{ zipcode.zipcode }}" data-bs-price="{{'%0.2f' % item.price}}"
+                            data-bs-store_id="{{ item.store_id }}" data-bs-store_name="{{ item.store.store_name }}">Add
+                            alert
+                        </button>
+
+                        <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="alertModalLabel">New message</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST" action="{{ url_for('createAlert') }}">
+                                        <input type="hidden" name="current_item_name" value="{{ itemName }}">
+                                        <input type="hidden" name="current_page" value="{{ pricingInfo.page }}">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="item-name" class="col-form-label">Item</label>
+                                                <input type="text" class="form-control" name="item-name">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="store-name" class="col-form-label">Store</label>
+                                                <!-- <input type="text" class="form-control" name="store-name" readonly> -->
+                                                <select name="store-id" class="form-select">
+                                                    <!-- <option value="">All Stores</option> -->
+                                                    {% for store in stores %}
+                                                    <option value="{{ store.store_id }}">
+                                                        {{ store.store_name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="zip-code" class="col-form-label">ZIP Code</label>
+                                                <input type="text" class="form-control" name="zip-code">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="price-threshold" class="col-form-label">Price
+                                                    Threshold</label>
+                                                <input type="text" class="form-control" name="price-threshold">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary">Create alert</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if pricingInfo.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4">
+                {% if pricingInfo.has_prev %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('searchZipCode', page=pricingInfo.prev_num,itemName=itemName,store_id=selected_store_id, user_state=user_state) }}">&laquo;
+                        Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo; Previous</span></li>
+                {% endif %}
+
+                {% for page_num in pricingInfo.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                {% if page_num %}
+                {% if page_num == pricingInfo.page %}
+                <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('searchZipCode', page=page_num, itemName=itemName,store_id=selected_store_id, user_state=user_state) }}">{{
+                        page_num }}</a>
+                </li>
+                {% endif %}
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if pricingInfo.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('searchZipCode', page=pricingInfo.next_num, itemName=itemName,store_id=selected_store_id, user_state=user_state) }}">Next
+                        &raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+    
     {% endif %}
     <footer class="bg-primary text-white text-center py-3 mt-auto">
         <div class="container">
