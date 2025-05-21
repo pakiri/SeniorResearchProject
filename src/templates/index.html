@@ -285,7 +285,7 @@
                         {% if session['GCuser_id'] %}
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#alertModal" data-bs-item_name="{{ item.item_name }}"
-                            data-bs-zipcode="{{ zipcode.zipcode }}" data-bs-price="{{'%0.2f' % item.price}}"
+                            data-bs-zipcode="{{ item.zipcode }}" data-bs-price="{{'%0.2f' % item.price}}"
                             data-bs-store_id="{{ item.store_id }}" data-bs-store_name="{{ item.store.store_name }}">Add
                             alert
                         </button>

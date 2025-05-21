@@ -132,7 +132,7 @@ def searchZipCode():
     per_page = 9
     query = PricingInfo.query
     if user_zipcode:
-        if len(user_zipcode) != 5 and user_zipcode.isnumeric():
+        if len(user_zipcode) != 5 or not user_zipcode.isnumeric():
             flash('Invalid zip code', 'danger')
             return redirect('/')
         query = query.filter(PricingInfo.zipcode == user_zipcode)
@@ -348,6 +348,7 @@ def displayAlerts():
 def createAlert():
     item_name = request.form.get("item-name")
     zipcode = request.form.get("zip-code")
+    user_state = ZipCode.query.get(zipcode).state
     price_threshold = request.form.get("price-threshold")
     page = request.form.get("current_page")
     current_item_name = request.form.get("current_item_name")
@@ -357,7 +358,7 @@ def createAlert():
     db.session.add(newAlert)
     db.session.commit()
     flash(f'Added alert for {item_name}', 'success')
-    return redirect(url_for('searchZipCode',zipcode=zipcode, page=page, itemName=current_item_name)) if current_item_name != "None" else redirect(url_for('searchZipCode',zipcode=zipcode, page=page))
+    return redirect(url_for('searchZipCode',zipcode=zipcode, page=page, itemName=current_item_name, user_state=user_state)) if current_item_name != "None" else redirect(url_for('searchZipCode',zipcode=zipcode, page=page, user_state=user_state))
 
 @app.route('/deleteAlert', methods=['POST'])
 def deleteAlert():
